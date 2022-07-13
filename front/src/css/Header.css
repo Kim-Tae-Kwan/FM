@@ -1,0 +1,61 @@
+#Header__mainText {
+    color: white;
+    font-size: 42px;
+    margin-left: 20px;
+    font-weight: bold;
+}
+
+#Header--Nav__MyPage, #Header--Nav__BusinessList, #Header--Nav__ApiService, #Header__Account__UserName {
+    color: white;
+    text-decoration: none;
+    height: 40px;
+    line-height: 25px;
+    margin-left: 20px;
+}
+
+#Header--Nav__MyPage, #Header--Nav__BusinessList, #Header--Nav__ApiService {
+    font-size: 22px;
+}
+
+#Header--Nav__MyPage:active, #Header--Nav__BusinessList:active, #Header--Nav__ApiService:active {
+    font-weight: bold;
+    opacity: 0.3;
+}
+
+/* 버튼 active 색상 변경 css */
+#Header--Nav__BusinessList{
+    display: block;
+    width: 145px;
+    height: 50px;
+    line-height: 50px;
+    border: none;
+    border-radius: 15px;
+}
+
+
+.Header--Account__UserInfo {
+    margin-right: 30px;
+    font-size: 22px;
+}
+
+#Header--Account__Img {
+    margin-left: 5px;
+    height: 30px;
+}
+
+#Header--Navbar__Detail {
+    margin-left: 20px;
+    font-weight: bold;
+    text-decoration: none;
+    color: darkgray;
+}
+
+
+
+/* header fonts */
+@font-face {
+    font-family: 'Hahmlet-Black';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2110@1.0/Hahmlet-Black.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}

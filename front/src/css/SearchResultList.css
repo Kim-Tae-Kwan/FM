@@ -1,0 +1,49 @@
+.searchResultlist-offcanvasbody--cardzone>.card-body{
+    text-align: left;
+}
+.searchResultlist-offcanvasbody--bodyzone>*{
+    text-align: center;
+}
+
+.searchResultlist-offcanvasbody--bodyzone{
+    -ms-overflow-style:none;
+    scrollbar-width: none;
+}
+.searchResultlist-offcanvasbody--bodyzone::-webkit-scrollbar{
+    display: none;
+}
+
+.offcanvas-body--buttontab{
+    text-align: center;
+    width: 100%;
+}
+
+.nav{
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+.nav-item{
+    display: block;
+    width: 33%;
+    text-align: center;
+}
+
+.nav-item button{
+    text-align: center;
+    width: 100%;
+}
+
+.searchResultlist-offcanvasbody--cardzone{
+    width: 100%;
+}
+
+.searchResultlist-offcanvasbody--cardzone__img{
+    width:150px;
+    float:right;
+}
+
+.searchResultlist-offcanvas{
+    width: 480px;
+}

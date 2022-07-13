@@ -1,0 +1,49 @@
+/* Mypage */
+.Mypage--Container{
+    border-radius: 10px;
+    height: 100%;
+}
+
+.Mypage--Row {
+    padding: 30px; 
+    margin-top: 40px
+}
+
+#Mypage--Row__Header {
+    font-family: 'SUIT-Bold';
+    text-align: center;
+}
+
+.Mypage--Update {
+    text-decoration: none;
+    color: black;
+}
+
+
+.Mypage--Update:hover {
+    color: black;
+
+}
+
+.Mypage--RowContents {
+    padding: 10px;
+    border-bottom: 1px solid gray;
+}
+
+
+.Mypage--RowContents:hover {
+    background-color: #f3f3f3;
+}
+
+#Mypage--Row__Header {
+    font-family: 'SUIT-Bold';
+}
+
+.Mypage--Row__ColText {
+    font-family: 'SUIT-Medium';
+}
+.Mypage--Col__ContentBox{
+    border-right: 1px solid gray;
+    border-top: 1px solid gray;
+    border-left: 1px solid gray;
+}

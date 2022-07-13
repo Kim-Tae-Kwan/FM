@@ -1,0 +1,90 @@
+.outline{
+    position: relative;
+    margin: 0px auto;
+    display: block;
+    height: 100%;
+}
+
+/* 지도크기 설정 */
+.FMIndexMapDom{
+    width: 100%;
+    height: 100%;
+}
+
+/* 현위치 버튼 */
+.btnCurLoc{
+    display: block;
+    background-color: rgba(250, 250, 250, 0.9);
+    border-radius: 25%;
+    padding: 2px;
+    width: 50px;
+    height: 45px;
+    margin-bottom: 110px;
+    margin-right: -60px;
+}
+.btnCurLoc>img{
+    margin: 0px;
+    width: 30px;
+}
+
+/* 거리설정 버튼 */
+.btnSetSearchOpt{
+    display: block;
+    background-color: rgba(250, 250, 250, 0.9);
+    border-radius: 25%;
+    padding: 2px;
+    width: 50px;
+    height: 45px;
+    margin-bottom: 50px;
+    margin-right: -50px;
+}
+.btnSetSearchOpt>a>img{
+    margin: 0px;
+    width: 25px;
+}
+/* 거리설정 드랍다운버튼 - 인라인으로 작동중 
+.btnSetSearchOpt__menulist{
+    margin-left: -340%;
+    margin-top: -100%;
+    padding: 0px;
+}
+*/
+
+/* 카테고리설정 버튼 */
+.btnAreaHtml{
+    background-color: rgba(250, 250, 250, 0.9);
+    left: 500px;
+    top: 19px;
+    height: 50px;
+}
+.btnAreaHtml>*{
+    line-height: 25px;
+}
+
+.btnAreaHtml>div{
+    line-height: 35px;
+}
+.btnAreaHtml>button>img{
+    width: 25px;
+}
+/* 카테고리설정 버튼 옵션 */
+
+.searchBarContainer{
+    position: absolute;
+}
+
+.container-fluid{
+    padding: 0px;
+}
+
+.navbar-toggler{
+    display: block;
+}
+
+.navbar-toggler.shortbtn{
+    left: 450px;
+    top: 70px;
+    background-color: rgba(250, 250, 250, 0.9);
+    border-radius: 25%;
+    border: 1px solid black;
+}

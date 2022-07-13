@@ -1,0 +1,29 @@
+.BusinessList--Container{
+    border-radius: 10px;
+    height: 100%;
+}
+
+#BusinessList--Row__Header {
+    font-family: 'SUIT-Bold';
+    text-align: center;
+}
+
+.BusinessList--Row__ColText {
+    font-family: 'SUIT-Medium';
+}
+
+.BusinessList--RowContents {
+    padding: 10px;
+    border-bottom: 1px solid gray;
+}
+
+.BusinessList--Enter {
+    float: right; 
+    font-weight: bold 
+}
+
+.BusinessList--Coll__ContentBox{
+    border-right: 1px solid gray;
+    border-top: 1px solid gray;
+    border-left: 1px solid gray;
+}

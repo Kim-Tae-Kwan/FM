@@ -1,0 +1,51 @@
+.searchDeatil-offcanvasbody--bodyzone{
+    -ms-overflow-style:none;
+    scrollbar-width: none;
+
+    text-align: center;
+}
+.searchDeatil-offcanvasbody--bodyzone::-webkit-scrollbar{
+    display: none;
+}
+
+.searchDeatil-offcanvasbody--buttonzone>*{
+    text-align: center;
+}
+
+.searchDeatil-offcanvasbody--buttontab{
+    text-align: center;
+    width: 100%;
+}
+
+.nav{
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+.nav-item{
+    display: block;
+    width: 33%;
+    text-align: center;
+}
+
+.nav-item button{
+    text-align: center;
+    width: 100%;
+}
+
+.searchDeatil-offcanvas.offcanvas.offcanvas-start.show{
+    margin-left: 480px;
+}
+
+.searchDeatil-offcanvasbody--cardzone{
+    width: 100%;
+}
+
+.searchDeatil-offcanvasbody--cardzone>*{
+    text-align: left;
+}
+
+.offcanvas.searchDeatil-offcanvas{
+    transition-duration: 0ms;
+}
