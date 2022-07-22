@@ -5,14 +5,14 @@ import SearchDetail from './SearchDetail';
 
 
 
-function SearchResultList({options, tog}) {
+function SearchResultList({options, resultTog}) {
 
-  const handleClose = () => tog.setToggle(false);
+  const resultClose = () => resultTog.setsearchResultToggle(false);
 
-  let [toggle2, setToggle2] = useState(false);
+  let [detailTog, setDetailTog] = useState(false);
 
-  const callback2 = () => {
-    setToggle2(toggle2=!toggle2);
+  const searchDetailTog = () => {
+    setDetailTog(detailTog=!detailTog);
   }
 
   const options2 = 
@@ -23,13 +23,13 @@ function SearchResultList({options, tog}) {
 
   return (
     <>
-      <Offcanvas className={'searchResultlist-offcanvas'} show={tog.toggle} onHide={handleClose} {...options} style={{width:'480px'}}>
+      <Offcanvas className={'searchResultlist-offcanvas'} show={resultTog.searchResultToggle} onHide={resultClose} {...options} style={{width:'480px'}}>
         <Offcanvas.Header closeButton>
           <Offcanvas.Title></Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body className={'searchResultlist-offcanvasbody--bodyzone'} style={{marginTop:'35px'}}>
-        <SearchDetail options={options2} tog2={{toggle2,setToggle2}}/>
-        <Card role={'button'} onClick={()=>{callback2()}} style={{ width: '100%' }} className={'searchResultlist-offcanvasbody--cardzone'}>          
+        <SearchDetail options={options2} detailTogFun={{detailTog,setDetailTog}}/>
+        <Card role={'button'} onClick={()=>{searchDetailTog()}} style={{ width: '100%' }} className={'searchResultlist-offcanvasbody--cardzone'}>          
           <Card.Body>
             <Card.Title>검색된 식당 이름</Card.Title>
             <Card.Subtitle className="mb-2 text-muted">한식당 / 일식당</Card.Subtitle>

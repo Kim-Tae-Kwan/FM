@@ -10,21 +10,25 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.biz.fm.domain.dto.MemberDto.MemberRead;
-import com.biz.fm.domain.dto.MemberDto.SignIn;
-import com.biz.fm.domain.dto.RefreshTokenDto;
-import com.biz.fm.domain.dto.Sign.In;
-import com.biz.fm.domain.dto.Sign.Up;
+import com.biz.fm.domain.dto.LoginTokenDto.NewAccessToken;
+import com.biz.fm.domain.dto.MemberDto.MemberResponse;
+import com.biz.fm.domain.dto.MemberDto.MemberUp;
+import com.biz.fm.domain.dto.SignDto.SignIn;
+import com.biz.fm.domain.dto.SignDto.SignInfo;
+import com.biz.fm.domain.dto.SignDto.SignUp;
 import com.biz.fm.domain.entity.Address;
+import com.biz.fm.domain.entity.LoginToken;
 import com.biz.fm.domain.entity.Member;
-import com.biz.fm.domain.entity.RefreshToken;
 import com.biz.fm.exception.ErrorCode;
 import com.biz.fm.exception.custom.EmailDuplicationException;
+import com.biz.fm.exception.custom.ExpiredJwtException;
 import com.biz.fm.exception.custom.InvalidEmailException;
 import com.biz.fm.exception.custom.InvalidPasswordException;
+import com.biz.fm.exception.custom.LogoutByBadToken;
+import com.biz.fm.exception.custom.LogoutByStateLogin;
 import com.biz.fm.repository.AddressRepository;
+import com.biz.fm.repository.LoginTokenRepository;
 import com.biz.fm.repository.MemberRepository;
-import com.biz.fm.repository.TokenRepository;
 import com.biz.fm.utils.JwtTokenProvider;
 
 import lombok.RequiredArgsConstructor;
@@ -34,17 +38,16 @@ import lombok.RequiredArgsConstructor;
 public class SignService {
 	
 	private final MemberRepository memberRepository;
-	private final TokenRepository tokenRepository;
+	private final LoginTokenRepository loginTokenRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtTokenProvider jwtTokenProvider;
 	private final MemberService memberService;
 	private final AddressRepository addressRepository;
-//	private final AuthenticationManager authenticationManager;
 	
 	ErrorCode errorCode;
 	
 	//회원가입
-	public MemberRead signUp(Up signUpinfo) throws ParseException {
+	public MemberResponse signUp(SignUp signUpinfo) throws ParseException {
 		
 		boolean result = this.isDuplicate(signUpinfo.getEmail());
 		if(result) throw new EmailDuplicationException();
@@ -53,104 +56,125 @@ public class SignService {
 		address.setId(UUID.randomUUID().toString().replace("-", ""));
 		addressRepository.insert(address);
 		
-		SignIn newMember = SignIn.builder()
+		MemberUp newMember = MemberUp.builder()
 								.id(UUID.randomUUID().toString().replace("-", ""))
 								.name(signUpinfo.getName())
 								.email(signUpinfo.getEmail())
 								.password(passwordEncoder.encode(signUpinfo.getPassword()))
-								.role("admin")
-								.phoneNumber(Integer.parseInt(signUpinfo.getPhoneNumber()))
+								.phoneNumber(signUpinfo.getPhoneNumber())
 								.birth(signUpinfo.getBirth())
-								.gender(signUpinfo.getGender())
 								.addressId(address.getId())
 								.build();
 
-		MemberRead memberRead =  memberService.insert(newMember);
+		MemberResponse memberRead =  memberService.insert(newMember);
 		
 		return memberRead;
 	}
 	
+	
 	//로그인
-	public Map<String, String> signIn(In signInInfo) {
+	public SignInfo signIn(SignIn signInInfo) throws ParseException {
 		
-		Map<String, String> result = new HashMap<>();
-		
-		//아이디 중복 확인
+		//이메일 확인
 		Member member = memberRepository.findByEmail(signInInfo.getEmail());
 		if(member == null) throw new InvalidEmailException();
 		
-		//패스워드를 확인한다
-		if(!passwordEncoder.matches(signInInfo.getPassword(), member.getPassword())) 
-			throw new InvalidPasswordException();
+		//패스워드를 확인.
+		if(!passwordEncoder.matches(signInInfo.getPassword(), member.getPassword())) throw new InvalidPasswordException();
+			
+		
+		//토큰 이메일 중복 확인.
+		if (loginTokenRepository.findByMemberId(member.getId()) != null) throw new LogoutByStateLogin(); 
 		
 		//토큰을 만들어 반환
-		Map<String, String> createToken = createTokenReturn(signInInfo);
-		result.put("accessToken", createToken.get("accessToken"));
-		result.put("refreshToken", createToken.get("refreshToken"));
+		Map<String, String> createToken = createTokenReturn(signInInfo, "login");
 		
-		return result;
+		SignInfo signInfo = SignInfo.builder()
+							.id(member.getId())
+							.name(member.getName())
+							.accessToken(createToken.get("accessToken"))
+							.refreshToken(createToken.get("refreshToken"))
+							.build();
+		
+		return signInfo;
+	}
+	
+	//로그아웃
+	public boolean signOut(String email) {
+		Member member = memberRepository.findByEmail(email);
+		if(member == null) throw new InvalidEmailException();
+		
+		int deleteCheck = loginTokenRepository.delete(member.getId());
+		if(deleteCheck>0) return true;
+		else return false;
 	}
 	
 	//새로운 토큰 반환
-	public Map<String, String> newAccessToken(RefreshTokenDto.newAccessToken newAccessToken, HttpServletRequest request){
-        Map<String,String> result = new HashMap<>();
-        RefreshToken refreshToken = tokenRepository.findByrefreshToken(newAccessToken.getRefreshToken());
+	public Map<String, String> newAccessToken(NewAccessToken newAccessToken, HttpServletRequest request) throws ParseException{
+        
+		Map<String,String> result = new HashMap<>();
+		
+		LoginToken userToken = loginTokenRepository.findByToken(newAccessToken.getAccessToken(), newAccessToken.getRefreshToken());
+        
+        // 로그아웃의 경우, LogoutByBadToken 예외처리
+        if(userToken == null) throw new LogoutByBadToken();
 
         // AccessToken은 만료되었지만 RefreshToken은 만료되지 않은 경우
-        if(jwtTokenProvider.validateToken(request, refreshToken.getRefreshToken())){
-            String email = jwtTokenProvider.getUserInfo(refreshToken.getRefreshToken());
-            In signIn = new In();
+        if(jwtTokenProvider.validateToken(request, userToken.getRefreshToken())){
+            String email = jwtTokenProvider.getUserInfo(userToken.getRefreshToken(), "email");
+            SignIn signIn = new SignIn();
             signIn.setEmail(email);
 
             //엑세스 토큰, 리프레쉬 토큰 모두 발급
-            Map<String,String> createToken = createTokenReturn(signIn);
+            Map<String,String> createToken = createTokenReturn(signIn, "newToken");
             result.put("accessToken", createToken.get("accessToken"));
             result.put("refreshToken", createToken.get("refreshToken"));
-        // RefreshToken 또한 만료된 경우는 로그인을 다시 진행해야 한다.
-        }else{
-            result.put("code", ErrorCode.ReLogin.getCode());
-            result.put("message", ErrorCode.ReLogin.getMessage());
-            result.put("HttpStatus", ErrorCode.ReLogin.getStatus().toString());
-        }
+            
+        // RefreshToken 또한 만료된 경우는 테이블을 날리야 한다.
+        }else throw new ExpiredJwtException();
+        
         return result;
     }
 	
 	// 토큰을 생성해서 반환
-    public Map<String, String> createTokenReturn(In SignInfo) {
+    public Map<String, String> createTokenReturn(SignIn SignInfo, String type) throws ParseException {
     	
         Map<String, String> result = new HashMap<String, String>();
 
-        String accessToken = jwtTokenProvider.createAccessToken(SignInfo);
-        String refreshToken = jwtTokenProvider.createRefreshToken(SignInfo).get("refreshToken");
-        String refreshTokenExpirationAt = jwtTokenProvider.createRefreshToken(SignInfo).get("refreshTokenExpirationAt");
+        String accessToken = jwtTokenProvider.SignInCreateAccessToken(SignInfo).get("accessToken");
+        String refreshToken = jwtTokenProvider.SignInCreateRefreshToken(SignInfo).get("refreshToken");
+        Member member = memberRepository.findByEmail(SignInfo.getEmail());
         
-        RefreshToken insertRefreshToken = RefreshToken.builder()
-                .email(SignInfo.getEmail())
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .refreshTokenExpirationAt(refreshTokenExpirationAt)
-                .build();
-        
-        //토큰 이메일 중복확인
-        if(tokenRepository.findByEmail(insertRefreshToken.getEmail()) != null){
-        	tokenRepository.delete(insertRefreshToken.getEmail());
-		}
-        
-        //토큰 데이터베이스에 토큰 정보를 입력하고
-        tokenRepository.insert(insertRefreshToken);
+        if(type == "login") {
+        	LoginToken insertToken = LoginToken
+	        		.builder()
+	                .memberId(member.getId())
+	                .accessToken(accessToken)
+	                .refreshToken(refreshToken)
+	                .build();
 
-        //액세스 토큰에 대한 정보를 리턴해준다. 
-        result.put("accessToken", accessToken);
-        result.put("refreshToken", insertRefreshToken.getRefreshToken());
+			loginTokenRepository.insert(insertToken);
+			
+	        result.put("accessToken", insertToken.getAccessToken());
+	        result.put("refreshToken", insertToken.getRefreshToken());
+	        
+        }else if(type == "newToken") {
+        	LoginToken insertToken = LoginToken
+	        		.builder()
+	                .memberId(member.getId())
+	                .accessToken(accessToken)
+	                .refreshToken(refreshToken)
+	                .build();
+
+        	loginTokenRepository.update(insertToken);
+			
+	        result.put("accessToken", insertToken.getAccessToken());
+	        result.put("refreshToken", insertToken.getRefreshToken());
+	        
+        }
         
         return result;
     }
-	
-	public boolean signOut(String email) {
-		int deleteCheck = tokenRepository.delete(email);
-		if(deleteCheck>0) return true;
-		else return false;
-	}
 	
 	//중복 확인
 	public boolean isDuplicate(String email) {
@@ -160,7 +184,7 @@ public class SignService {
 	}
 	
 	//패스워드 확인
-	public boolean isPassword(In signInInfo) {
+	public boolean isPassword(SignIn signInInfo) {
 		Member beforeMember = memberRepository.findByEmail(signInInfo.getEmail());
 		if(beforeMember == null) throw new InvalidEmailException();
 		

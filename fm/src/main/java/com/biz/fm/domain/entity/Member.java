@@ -7,13 +7,10 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.biz.fm.domain.dto.MemberDto.MemberRead;
-import com.biz.fm.domain.dto.MemberDto.MemberUpdate;
-import com.biz.fm.domain.dto.Sign;
-import com.biz.fm.domain.dto.Sign.In;
+import com.biz.fm.domain.dto.MemberDto.MemberResponse;
+import com.biz.fm.domain.dto.SignDto.SignIn;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
@@ -33,36 +30,25 @@ public class Member implements UserDetails{
 	private String name;
 	private String email;
 	private String password;
-	private String role;
-	private Integer phoneNumber;
+	private String phoneNumber;
 	private Date birth;
-	private String gender;
 	private Address address;
 	private Timestamp createDate;
 	private Timestamp deleteDate;
 	
-	public MemberRead toMemberRead() {
-		return MemberRead.builder()
+	public MemberResponse toMemberRead() {
+		return MemberResponse.builder()
 				.id(id)
 				.name(name)
 				.email(email)
 				.phoneNumber(phoneNumber)
-				.gender(gender)
 				.address(address)
 				.createDate(createDate)
 				.build();
 	}
 	
-	public MemberUpdate toMemberUpdate() {
-		return MemberUpdate.builder()
-				.role(role)
-				.phoneNumber(phoneNumber)
-				.addressId(address.getId())
-				.build();
-	}
-	
-	public In toMemberSignIn() {
-		return In.builder()
+	public SignIn toMemberSignIn() {
+		return SignIn.builder()
 				.email(email)
 				.password(password)
 				.build();
@@ -71,7 +57,7 @@ public class Member implements UserDetails{
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		List<GrantedAuthority> list = new ArrayList<>();
-		list.add(new SimpleGrantedAuthority(this.role));
+//		list.add(new SimpleGrantedAuthority(this.role));
 		return list;
 	}
 
@@ -104,8 +90,3 @@ public class Member implements UserDetails{
 		return true;
 	}
 }
-
-
-
-
-

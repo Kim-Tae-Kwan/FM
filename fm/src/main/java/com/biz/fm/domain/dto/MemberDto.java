@@ -1,7 +1,9 @@
 package com.biz.fm.domain.dto;
 
+import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.Date;
+
+import javax.validation.constraints.Size;
 
 import com.biz.fm.domain.entity.Address;
 import com.biz.fm.domain.entity.Member;
@@ -17,40 +19,38 @@ public class MemberDto {
 	
 	@Getter
 	@Setter
-	@NoArgsConstructor
+	public static class safeinfo{
+		private String id;
+		private String name;
+		private String email;
+		private String phoneNumber;
+	}
+	
+	@Getter
+	@Setter
 	@AllArgsConstructor
+	@NoArgsConstructor
 	@Builder
-	public static class SignIn{
+	public static class MemberUp {
+
 		private String id;
 		private String name;
 		private String email;
 		private String password;
-		private String role;
-		private Integer phoneNumber;
+		private String phoneNumber;
 		@JsonFormat(pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
 		private Date birth;
-		private String gender;
 		private String addressId;
 	}
 	
 	@Getter
 	@Setter
-	public static class safeinfo{
-		private String id;
-		private String name;
-		private String email;
-		private Integer phoneNumber;
-	}
-	
-	@Getter
-	@Setter
 	@Builder
-	public static class MemberRead{
+	public static class MemberResponse{
 		private String id;
 		private String name;
 		private String email;
-		private Integer phoneNumber;
-		private String gender;
+		private String phoneNumber;
 		private Address address;
 		@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
 		private Timestamp createDate;
@@ -62,15 +62,13 @@ public class MemberDto {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class MemberUpdate{
-		private String role;
-		private Integer phoneNumber;
-		private String addressId;
+		@Size(min = 11, max = 11, message = "전화번호는 11 자리여야 합니다.")
+		private String phoneNumber;
+		private Address address;
 		
 		public MemberUpdate patch(Member Member) {
 			
-			if(this.getRole() != null) this.setRole(Member.getRole());
-			if(this.getPhoneNumber() != null) this.setPhoneNumber(Member.getPhoneNumber());
-			if(this.getAddressId() != null) this.setAddressId(Member.getAddress().getId());
+			if(this.getPhoneNumber() == null) this.setPhoneNumber(Member.getPhoneNumber());
 			
 			return this;
 		}

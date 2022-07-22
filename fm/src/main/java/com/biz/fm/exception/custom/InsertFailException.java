@@ -4,4 +4,8 @@ public class InsertFailException extends RuntimeException {
 	public InsertFailException() {
         super();
     }
+	
+	public InsertFailException(String message) {
+        super(message);
+    }
 }

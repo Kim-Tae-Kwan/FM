@@ -1,49 +1,87 @@
 /* Mypage */
 .Mypage--Container{
-    border-radius: 10px;
     height: 100%;
+    padding: 4%;
+    margin-top: -30px;
+}
+/* 카드 디자인 */
+.card {
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
 }
 
-.Mypage--Row {
-    padding: 30px; 
-    margin-top: 40px
+.card {
+    position: relative;
+    display: flex;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 0 solid rgba(0,0,0,.125);
+    border-radius: .25rem;
 }
-
-#Mypage--Row__Header {
-    font-family: 'SUIT-Bold';
-    text-align: center;
+.card-body>.row>div,.card-body>.row>div>h6{
+    height: 40px;
+    line-height: 40px;
 }
-
-.Mypage--Update {
-    text-decoration: none;
-    color: black;
+.card-body>.row{
+    padding-left: 25px;
+    padding-right: 25px;
 }
-
-
-.Mypage--Update:hover {
-    color: black;
-
-}
-
-.Mypage--RowContents {
+.card-body{
     padding: 10px;
-    border-bottom: 1px solid gray;
 }
 
-
-.Mypage--RowContents:hover {
-    background-color: #f3f3f3;
+hr{
+    margin: 10px;
 }
 
-#Mypage--Row__Header {
-    font-family: 'SUIT-Bold';
+.userinfozone--headerzone{
+    height: 265px;
 }
 
-.Mypage--Row__ColText {
-    font-family: 'SUIT-Medium';
+.card.userinfozone--usertitle{
+    /* height: 265px; */
+    height: 450px;
 }
-.Mypage--Col__ContentBox{
-    border-right: 1px solid gray;
-    border-top: 1px solid gray;
-    border-left: 1px solid gray;
+
+/* .btn.btnEditUserInfo{
+    width: 60px;
+    height: 40px;
+    background-color: rgba(250, 250, 250, 0.9);
+    color: rgba(10, 10, 10, 0.7);
+    border-radius: 30%;
+    border: 0.3px solid rgba(10, 10, 10, 0.3);
+} */
+
+/* .userinfozone--usertitle__btnAddFren{
+    width: 90px;
+    height: 40px;
+    background-color: rgba(250, 250, 250, 0.9);
+    color: rgba(10, 10, 10, 0.7);
+    border-radius: 30%;
+    border: 0.3px solid rgba(10, 10, 10, 0.3);
+    
+} */
+
+/* 가맹점리스트 리스트그룹 디자인 */
+.fransimpledatazone--franlistzone>.list-group{
+    padding-left: 10px;
+    padding-right: 10px;
+    /* 스크롤 없애기 */
+    -ms-overflow-style:none; /* IE and Edge */
+    scrollbar-width:none /* Firefox */
+}
+
+/* 스크롤 없애기 */
+.fransimpledatazone--franlistzone>.list-group::-webkit-scrollbar {
+	display:none /* Chrome , Safari , Opera */
+}
+
+/* 가맹점 리스트 리스트그룹 내용 디자인 */
+.fransimpledatazone--franlistzone>.list-group>.list-group-item{
+    border-top: 0px solid black;
+    border-left: 0px solid black;
+    border-right: 0px solid black;
+    border-bottom: 0.3px solid rgba(10, 10, 10, 0.3);
+    margin-bottom: 14px;
+    height: 40px;
+    line-height: 40px;
 }

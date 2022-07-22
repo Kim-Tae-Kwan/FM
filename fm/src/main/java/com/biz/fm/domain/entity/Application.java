@@ -1,6 +1,5 @@
 package com.biz.fm.domain.entity;
 
-import com.biz.fm.domain.dto.ApplicationDto.AppRead;
 import com.biz.fm.domain.dto.ApplicationDto.AppUpdate;
 
 import lombok.AllArgsConstructor;
@@ -23,18 +22,12 @@ public class Application {
 	private String apiKey;
 	private String memberId;
 	
-	public AppRead toAppRead() {
-		return AppRead.builder()
-				.appKey(apiKey)
-				.appName(name)
-				.build();
-	}
 	
 	public AppUpdate toAppUpdate() {
 		return AppUpdate.builder()
+				.appId(id)
 				.name(name)
 				.key(apiKey)
-				.memberId(memberId)
 				.build();
 	}
 

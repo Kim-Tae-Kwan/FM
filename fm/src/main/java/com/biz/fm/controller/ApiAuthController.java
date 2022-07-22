@@ -1,35 +1,51 @@
 package com.biz.fm.controller;
 
+import java.text.ParseException;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.biz.fm.domain.dto.AppTokenDto.NewAccessToken;
 import com.biz.fm.service.ApiAuthService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 
 @Api(tags = {"8. Api Auth"})
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@CrossOrigin
 public class ApiAuthController{
 private final ApiAuthService apiAuthService;
 	
-    @GetMapping("/check")
+    @PostMapping("/publish")
     @ApiOperation(value = "토큰 발급", notes = "앱 키를 통해서 토큰을 발급받는다.")
-    public ResponseEntity<Object> check(@RequestBody String appKey) throws NotFoundException {
+    public ResponseEntity<?> tokenIssue(
+    		@ApiParam(value = "앱 키", required = true) @RequestParam String appKey) throws NotFoundException, ParseException {
     	Map<String, String> accessToken = apiAuthService.requestToken(appKey);    	
         return ResponseEntity.ok(accessToken);
+    }
+    
+    @PostMapping("republish")
+    @ApiOperation(value = "토큰 재발급", notes = "토큰을 재발급한다.")
+    public ResponseEntity<?> tokenReissue(
+    		@ApiParam(value = "토큰 재발급 정보", required = true) @RequestBody NewAccessToken newAccessToken, HttpServletRequest request) 
+    				throws NotFoundException, ParseException {
+    	
+    	Map<String, String> accessToken = apiAuthService.newAccessToken(newAccessToken, request); 
+    	return ResponseEntity.ok(accessToken);
     }
 }
 	

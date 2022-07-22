@@ -8,12 +8,14 @@ import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.biz.fm.domain.dto.MenuDto.MenuCreate;
-import com.biz.fm.domain.dto.MenuDto.MenuRead;
+import com.biz.fm.domain.dto.MenuDto.MenuImageUpdate;
+import com.biz.fm.domain.dto.MenuDto.MenuResponse;
 import com.biz.fm.domain.dto.MenuDto.MenuUpdate;
 import com.biz.fm.domain.entity.Menu;
 import com.biz.fm.exception.custom.DeleteFailException;
 import com.biz.fm.exception.custom.InsertFailException;
 import com.biz.fm.exception.custom.UpdateFailException;
+import com.biz.fm.repository.MenuImageRepository;
 import com.biz.fm.repository.MenuRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -23,54 +25,52 @@ import lombok.RequiredArgsConstructor;
 public class MenuService {
 
 	private final MenuRepository menuRepository;
+	private final MenuImageRepository menuImageRepository;
 	
-	public List<MenuRead> getList() throws NotFoundException{
-		List<Menu> menus = menuRepository.findAll();
-		if(menus.size() == 0) throw new NotFoundException(null);
-		
-		List<MenuRead> menusReads = new ArrayList<>();
-		for(Menu menu : menus) {
-			menusReads.add(menu.toMenuRead());
-		}
-		return menusReads;
-	}
+//	public List<MenuResponse> getList() throws NotFoundException{
+//		List<Menu> menus = menuRepository.findAll();
+//		if(menus.size() == 0) throw new NotFoundException(null);
+//		
+//		List<MenuResponse> menusReads = new ArrayList<>();
+//		for(Menu menu : menus) {
+//			menusReads.add(menu.toMenuRead());
+//		}
+//		return menusReads;
+//	}
 	
-	public MenuRead getMenu(String memberId) throws NotFoundException {
+	public Menu findMenuById(String memberId) throws NotFoundException {
 		Menu menu = menuRepository.findById(memberId);
 		if(menu == null) throw new NotFoundException(null);
-		return menu.toMenuRead();
+		return menu;
 	}
 	
-	public MenuRead insertMenu(MenuCreate menu) {
-		menu.setId(UUID.randomUUID().toString().replace("-", ""));
-		
-		int result = menuRepository.insert(menu);
-		if(result > 0) {
-			return menuRepository.findById(menu.getId()).toMenuRead();
-		}
-		else throw new InsertFailException();
-	}
-	
-	public MenuRead updateMenu(String menuId, MenuUpdate menu) {
+	public Menu updateMenu(String menuId, MenuUpdate menu) {
 		Menu oldMenu = menuRepository.findById(menuId);
-		if(oldMenu == null) throw new UpdateFailException();
+		if(oldMenu == null) throw new UpdateFailException("메뉴를 찾을 수 없습니다. menuId를 확인하세요.");
 		
 		Menu newMenu = oldMenu.patch(menu);
 		
 		int result = menuRepository.update(newMenu);
 		if(result > 0) {
-			return menuRepository.findById(menuId).toMenuRead();
+			return menuRepository.findById(menuId);
 		}
 		else throw new UpdateFailException();
 	}
+	
+	public boolean updateMenuImage(String menuId, MenuImageUpdate imageUpdate) {
+		int result = menuImageRepository.updateMenuImage(imageUpdate.getImageId(), menuId);
+		if(result > 0) return true;
+		else throw new UpdateFailException();
+		
+	}
 
-	public MenuRead deleteMenu(String id) {
+	public Menu deleteMenu(String id) {
 		Menu menu = menuRepository.findById(id);
 		if(menu == null) throw new DeleteFailException();
 		
 		int result = menuRepository.delete(id);
 		if(result > 0) {
-			return menu.toMenuRead();
+			return menu;
 		}
 		else throw new DeleteFailException();
 	}

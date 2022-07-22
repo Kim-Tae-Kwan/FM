@@ -2,7 +2,7 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 
 function PrivateRoute({ component: Component }) {
-  return localStorage.getItem("Authorization") ? (
+  return localStorage.getItem("accessToken") ? (
     Component
   ) : (
     <Navigate to="/" {...alert("로그인 먼저 해주십쇼")} />

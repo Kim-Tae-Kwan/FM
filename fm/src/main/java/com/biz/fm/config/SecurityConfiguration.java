@@ -2,6 +2,7 @@ package com.biz.fm.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -10,8 +11,13 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.biz.fm.filter.JwtAuthenticationFilter;
+import com.biz.fm.repository.AppTokenRepository;
+import com.biz.fm.repository.LoginTokenRepository;
 import com.biz.fm.utils.AuthenticationEntryPointHandler;
 import com.biz.fm.utils.JwtTokenProvider;
 import com.biz.fm.utils.WebAccessDeniedHandler;
@@ -26,7 +32,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final AuthenticationEntryPointHandler authenticationEntryPointHandler;
 	private final WebAccessDeniedHandler webAccessDeniedHandler;
-//	private final ApiKeyAuthFilter filter;
+	private final AppTokenRepository appTokenRepository;
+	private final LoginTokenRepository loginTokenRepository;
 
 	//passwordEncoder 을 위한 빈 등록
     @Bean
@@ -40,20 +47,40 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		return super.authenticationManagerBean();
 	}
 
+	@Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.addAllowedOriginPattern("*");
+        configuration.addAllowedHeader("*");
+        configuration.addAllowedMethod("*");
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+	
 	//spring security 설정이 가능하다.
 	//WebSecurity에 접근 혀용 설정을 해버리면 이 설정이 적용되지 않는다. 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http
+		http			
 			.httpBasic().disable() // rest api 이므로 기본설정 사용안함
+			.cors().configurationSource(corsConfigurationSource())	//cors 모든 요청 허용
+			.and()
+//			.cors().disable()
 			.csrf().disable() // rest api이므로 csrf 보안이 필요없으므로 disable처리.
+			
 			// jwt token으로 인증하므로 세션은 필요없으므로 생성안함.
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
 			.and()
-				.authorizeRequests() 					// 다음 리퀘스트에 대한 사용권한 체크
-				.antMatchers("/api/sign/*").permitAll() // 가입 및 인증 주소는 누구나 접근가능
-				.antMatchers("/api/auth/*").permitAll()
-				.anyRequest().permitAll() 			// 그외 나머지 요청은 모두 인증된 회원만 접근 가능
+				.authorizeRequests() 					
+				.antMatchers("/api/v1/sign/*").permitAll() //security가 URL prefix 설정 앞에 있기 때문에 문제가 생기지 않는다.  
+				.antMatchers("/api/v1/auth/*").permitAll()
+				.antMatchers(HttpMethod.GET, "/api/v1/franchisee/**").permitAll()
+				.anyRequest().permitAll() 		
+//				.anyRequest().authenticated()
 			.and()
 				.exceptionHandling()
 				.authenticationEntryPoint(authenticationEntryPointHandler)
@@ -86,4 +113,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             "/v3/api-docs/**",
             "/swagger-ui/**"
     };
+	
+	
 }

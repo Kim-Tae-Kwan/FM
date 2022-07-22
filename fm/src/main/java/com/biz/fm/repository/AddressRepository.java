@@ -29,6 +29,6 @@ public interface AddressRepository {
 	@Insert("INSERT INTO address VALUES (#{id}, #{postalCode}, #{road}, #{jibun}, #{detail})")
 	public int insert(Address address);
 	
-	@Update("UPDATE address SET detail = #{detail} WHERE id = #{id}")
+	@Update("UPDATE address SET postal_code = #{postalCode}, road = #{road}, jibun = #{jibun}, detail = #{detail} WHERE id = #{id}")
 	public int update(Address address);
 }

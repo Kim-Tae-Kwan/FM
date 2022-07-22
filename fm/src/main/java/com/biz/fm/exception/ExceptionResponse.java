@@ -11,16 +11,19 @@ public class ExceptionResponse {
 	private String message;
 	private Integer status;
 	private String code;
+	private Object detail;
 	
 	public ExceptionResponse(ErrorCode errorCode) {
 		this.message = errorCode.getMessage();
 		this.status = errorCode.getStatus().value();
 		this.code = errorCode.getCode();
+		this.detail = "";
 	}
 	
-	public ExceptionResponse(ErrorCode errorCode, String message) {
-		this.message = message;
+	public ExceptionResponse(ErrorCode errorCode, Object detail) {
+		this.message = errorCode.getMessage();
 		this.status = errorCode.getStatus().value();
 		this.code = errorCode.getCode();
+		this.detail = detail;
 	}
 }

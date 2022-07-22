@@ -1,6 +1,5 @@
 package com.biz.fm.domain.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,16 +15,8 @@ public class ApplicationDto {
 	
 	@Getter
 	@Setter
-	public static class AppIn{
-		private String id;
-		private String name;
-		private String apiKey;
-		private String memberId;
-	}
-	
-	@Getter
-	@Setter
 	public static class AppUpdateName{
+		private String appId;
 		private String currentName;
 		private String newName;
 	}
@@ -33,14 +24,14 @@ public class ApplicationDto {
 	@Getter
 	@Setter
 	public static class AppUpdateKey{
-		private String name;
+		private String appId;
 	}
 	
 	@Getter
 	@Setter
 	@Builder
 	public static class AppUpdate{
-		private String memberId;
+		private String appId;
 		private String name;
 		private String key;
 		
@@ -48,17 +39,8 @@ public class ApplicationDto {
 	
 	@Getter
 	@Setter
-	@AllArgsConstructor
-	@Builder
-	public static class AppRead{
-		private String appName;
-		private String appKey;
-	}
-	
-	@Getter
-	@Setter
 	public static class AppDelete{
-		private String name;
+		private String appId;
 	}
 	
 }

@@ -24,6 +24,7 @@ public class AuthenticationEntryPointHandler implements AuthenticationEntryPoint
     public void commence(HttpServletRequest request, HttpServletResponse response
     		, org.springframework.security.core.AuthenticationException authException) 
     		throws IOException, ServletException {
+		
         String exception = (String) request.getAttribute("exception");
         ErrorCode errorCode;
 
@@ -31,7 +32,7 @@ public class AuthenticationEntryPointHandler implements AuthenticationEntryPoint
          * 토큰이 없는 경우 예외처리
          */
         if(exception == null) {
-            errorCode = ErrorCode.UNAUTHORIZEDException;
+            errorCode = ErrorCode.EXPIRED_JWT_EXCEPTION;
             setResponse(response, errorCode);
             return;
         }
@@ -40,10 +41,20 @@ public class AuthenticationEntryPointHandler implements AuthenticationEntryPoint
          * 토큰이 만료된 경우 예외처리
          */
         if(exception.equals("ExpiredJwtException")) {
-            errorCode = ErrorCode.ExpiredJwtException;
+            errorCode = ErrorCode.EXPIRED_JWT_EXCEPTION;
             setResponse(response, errorCode);
             return;
         }
+        
+        /**
+         * 잘못된 경로로 토큰이 발급되었을 때 예외처리
+         */
+        if(exception.equals("LogoutByBadToken")) {
+            errorCode = ErrorCode.LOGOUT_BY_BAD_TOKEN;
+            setResponse(response, errorCode);
+            return;
+        }
+        
     }
 
     private void setResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {

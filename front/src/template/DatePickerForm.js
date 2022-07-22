@@ -1,29 +1,24 @@
-import React, { useState } from 'react';
-import DatePicker from 'react-datepicker';
-import {ko} from 'date-fns/esm/locale'
+import * as React from "react";
+import TextField from "@mui/material/TextField";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 
-import "react-datepicker/dist/react-datepicker.css"
+export default function JalaliDatePicker() {
+    const [value, setValue] = React.useState(new Date());
 
-export default function DatePickerForm() {
-  
-    const [startDate,setStartDate] = useState(new Date());
-    const dateFunc = new Date();
-    let firstDay = new Date(dateFunc.getMonth(),1)
-    let lastDay = new Date(dateFunc.getFullYear(),dateFunc.getMonth()+1,0)
-  return (
-        <DatePicker
-            dateFormat='yyyy-MM-dd'
-            className="input-datepicker"
-            selected={startDate}
-            onChange={(date) => setStartDate(date)}
-            // withPortal
-            locale={ko}
-            showMonthDropdown
-            showYearDropdown
-            dropdownMode="select"
-            
-        />
-  )
+    return (
 
- 
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DatePicker
+                openTo="year"
+                label='생년월일'
+                inputFormat="yyyy-MM-dd"
+                views={['year', 'month', 'day']}
+                value={value}
+                onChange={(newValue) => { setValue(newValue); }}
+                renderInput={(params) => <TextField {...params} />}
+            />
+        </LocalizationProvider>
+    );
 }

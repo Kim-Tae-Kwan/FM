@@ -2,6 +2,7 @@ package com.biz.fm.controller;
 
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,24 +23,25 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 
-@Api(tags = {"7. API"})
+@Api(tags = {"7. App"})
 @RestController
-@RequestMapping("/api/Application")
+@RequestMapping("/api/v1/application")
 @RequiredArgsConstructor
+@CrossOrigin
 public class AppController {
 	
 	private final ApplicationService appService;
 	
-	@GetMapping("/{name}")
-	@ApiOperation(value = "앱 조회", notes = "앱 이름을 통해서 조회한다.")
-	public ResponseEntity<?> selectOne(@ApiParam(value = "앱 조회 정보", required = true) @PathVariable String name) throws NotFoundException{
-		return ResponseEntity.ok(appService.getApp(name));
+	@GetMapping("/{appId}")
+	@ApiOperation(value = "앱 조회", notes = "앱 아이디를 통해서 조회한다.")
+	public ResponseEntity<?> selectOne(@ApiParam(value = "앱 조회 정보", required = true) @PathVariable String appId) throws NotFoundException{
+		return ResponseEntity.ok(appService.getApp(appId));
 	}
 	
 	@PostMapping
 	@ApiOperation(value = "앱 생성", notes = "앱을 생성한다.")
-	public ResponseEntity<?> insert(@ApiParam(value = "앱 생성 정보", required = true) @RequestBody AppCreate appCreate){
-		return ResponseEntity.ok(appService.insert(appCreate));
+	public ResponseEntity<?> insert(@ApiParam(value = "앱 생성 정보", required = true) @RequestBody AppCreate createAppInfo){
+		return ResponseEntity.ok(appService.insert(createAppInfo));
 	}
 	
 	@PutMapping("/name")
@@ -49,7 +51,7 @@ public class AppController {
 	}
 	
 	@PutMapping("/key")
-	@ApiOperation(value = "앱 키 재발급", notes = "앱 이름을 통해 앱 키를 재발급 받는다.")
+	@ApiOperation(value = "앱 키 재발급", notes = "앱 아이디를 통해 앱 키를 재발급 받는다.")
 	public ResponseEntity<?> keyUpdate(@ApiParam(value = "앱 키 수정 정보", required = true) @RequestBody AppUpdateKey appUpdateKey){
 		return ResponseEntity.ok(appService.keyUpdate(appUpdateKey));
 	}

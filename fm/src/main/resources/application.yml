@@ -18,12 +18,27 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant-path-matcher
+      
+#이메일 인증을 위한 gmail smtp 설정      
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: bizfm123@gmail.com
+    password: cnybblaejmbuhxmg
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 # camel case 설정.
 # 컬럼명 스네이크 케이스 -> 카멜케이스로 받아옴.
 mybatis:
     configuration:
         map-underscore-to-camel-case: true
-        
+    
 logging:
   level:
-    '[com.biz.fm.repository]': trace
+    '[com.biz.fm.repository]': debug
+    

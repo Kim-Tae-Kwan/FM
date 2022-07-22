@@ -1,8 +1,12 @@
 package com.biz.fm.exception.custom;
 
 public class ForbiddenException extends RuntimeException{
-	ForbiddenException(){
+	public ForbiddenException(){
 		super();
+	}
+	
+	public ForbiddenException(String message){
+		super(message);
 	}
 
 }
