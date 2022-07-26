@@ -161,6 +161,7 @@ public class FmExceptionHandler {
 	protected ResponseEntity<?> reissudToken(ReissudToken ex) {
 		return getResponseEntity(ErrorCode.REISSUED_TOKEN, ex.getMessage());
 	}
+	
 	private ResponseEntity<?> getResponseEntity(ErrorCode errorCode, Object detailMessage){
 		ExceptionResponse exceptionResponse = new ExceptionResponse(errorCode, detailMessage);
 		return ResponseEntity.status(exceptionResponse.getStatus()).body(exceptionResponse);

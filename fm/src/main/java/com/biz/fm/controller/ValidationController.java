@@ -30,7 +30,7 @@ public class ValidationController {
 	private final ValidationService validationService;
 	
 	@GetMapping("/sign-up/check-code")
-	@ApiOperation(value = "회원가입 시 / 비밀번호 분실 시, 이메일에 전송된 인증 코드 조회", notes = "전송된 인증 코드를 사용해 유효한 이메일인지 확인한다.")
+	@ApiOperation(value = "이메일에 전송된 인증 코드 조회", notes = "전송된 인증 코드를 사용해 유효한 이메일인지 확인한다.")
 	public ResponseEntity<?> checkCode(
 			@ApiParam(value = "이메일", required = true) @RequestParam String email, 
 			@ApiParam(value = "인증코드", required = true) @RequestParam String code ) throws NotFoundException {
@@ -39,15 +39,15 @@ public class ValidationController {
 		return ResponseEntity.ok(result);
 	} 
 	
-	@GetMapping("/simple-password-change/check-info")
-	@ApiOperation(value = "단순 비밀번호 변경 시, 사용자 정보가 유효한 정보인지 체크", notes = "전송된 이메일, 패스워드를 확인해 유효한 정보인지 확인한다.")
-	public ResponseEntity<?> simpleCheckInfo(
-			@ApiParam(value = "이메일", required = true) @RequestParam String email, 
-			@ApiParam(value = "패스워드", required = true) @RequestParam String password) throws Exception {
-
-		boolean result = validationService.checkInfoIsValid(email, password);
-		return ResponseEntity.ok(result);
-	}
+//	@GetMapping("/simple-password-change/check-info")
+//	@ApiOperation(value = "단순 비밀번호 변경 시, 사용자 정보가 유효한 정보인지 체크", notes = "전송된 이메일, 패스워드를 확인해 유효한 정보인지 확인한다.")
+//	public ResponseEntity<?> simpleCheckInfo(
+//			@ApiParam(value = "이메일", required = true) @RequestParam String email, 
+//			@ApiParam(value = "패스워드", required = true) @RequestParam String password) throws Exception {
+//
+//		boolean result = validationService.checkInfoIsValid(email, password);
+//		return ResponseEntity.ok(result);
+//	}
 	 
 	@PostMapping("/sign-up/send-code")
 	@ApiOperation(value = "회원가입 시, 인증 코드 이메일 전송", notes = "회원가입 시, 이메일 인증을 위한 인증 코드를 이메일로 전송한다.")
@@ -59,9 +59,9 @@ public class ValidationController {
 	}
 	
 	@PostMapping("/lose-password/send-code")
-	@ApiOperation(value = "비밀번호 분실 시, 인증 코드 이메일 전송", notes = "비밀번호 변경 시, 이메일 인증을 위한 코드를 이메일로 전송한다.")
+	@ApiOperation(value = "비밀번호 분실 or 변경 시, 인증 코드 이메일 전송", notes = "비밀번호 분실 or 변경 시, 이메일 인증을 위한 코드를 이메일로 전송한다.")
 	public ResponseEntity<?> emailAndNameValidationForPassword(
-			@ApiParam(value = "인증 정보", required = true) @RequestParam  String email) throws Exception{
+			@ApiParam(value = "인증 정보", required = true) @RequestParam String email) throws Exception{
 
 		boolean result = validationService.sendToEmailForPassword(email);
 		return ResponseEntity.ok(result);
@@ -70,7 +70,7 @@ public class ValidationController {
 	@PutMapping("/password")
 	@ApiOperation(value = "비밀번호 변경", notes = "이메일을 Member 테이블에서 조회 후, 문제가 없다면 해당 비밀번호를 변경한다.")
 	public ResponseEntity<?> changePasswordCaseOfLoss(
-			@ApiParam(value = "비밀번호 변경 정보", required = true) @RequestBody UpdatePassword updatePassword) {
+			@ApiParam(value = "비밀번호 변경 정보", required = true) @RequestBody UpdatePassword updatePassword) throws NotFoundException {
 
 		MemberResponse memberResponse = validationService.changePassword(updatePassword);
 		return ResponseEntity.ok(memberResponse);

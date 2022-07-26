@@ -7,6 +7,7 @@ import {
     Image,
     Button,
     InputGroup,
+    Accordion,
 } from "react-bootstrap";
 import useDaumPostcodePopup from "react-daum-postcode/lib/useDaumPostcodePopup";
 import "bootstrap/dist/css/bootstrap.css";
@@ -48,7 +49,7 @@ function AddFranchisee({ inputElement }) {
                 ...franchiseeInfo.franchiseeinput,
                 displayAddress: data.roadAddress,
             });
-            if (data.autoJibunAddress == "") {
+            if (data.autoJibunAddress === "") {
                 // autoAddress가 없는 경우
                 franchiseeInfo.setFranchiseeaddressinfo({
                     ...franchiseeInfo.franchiseeaddressInfo,
@@ -152,7 +153,7 @@ function AddFranchisee({ inputElement }) {
                             `/check`,
                     }).then(function (res) {
                         console.log(res.data.result);
-                        if (res.data.result == true) {
+                        if (res.data.result === true) {
                             console.log("디비에없음");
                             franchiseeInfo.setBusinessChk("a");
                         } else {
@@ -172,8 +173,7 @@ function AddFranchisee({ inputElement }) {
     };
     // 가맹점 등록
     const addFranchiseeFunction = () => {
-        if(franchiseeInfo.businessChk === 'a'){
-            
+        if (franchiseeInfo.businessChk === "a") {
             axios({
                 method: "post",
                 url: `http://192.168.240.250:8080/api/v1/franchisee`,
@@ -181,20 +181,42 @@ function AddFranchisee({ inputElement }) {
                     address: {
                         detail: franchiseeInfo.franchiseeinput.detailaddress,
                         jibun: franchiseeInfo.franchiseeaddressInfo.jibun,
-                        postalCode: franchiseeInfo.franchiseeaddressInfo.postalCode,
+                        postalCode:
+                            franchiseeInfo.franchiseeaddressInfo.postalCode,
                         road: franchiseeInfo.franchiseeaddressInfo.road,
                     },
                     businessNumber: franchiseeInfo.franchiseeinput.businesscode,
                     firstImg: firstImgsrc,
                     firstImgId: firstImgId,
                     hours: {
-                        friday: "09:00 ~ 18:00",
-                        monday: "09:00 ~ 18:00",
-                        saturday: "09:00 ~ 18:00",
-                        sunday: "09:00 ~ 18:00",
-                        thursday: "09:00 ~ 18:00",
-                        tuesday: "09:00 ~ 18:00",
-                        wednesday: "09:00 ~ 18:00",
+                        friday:
+                            document.getElementById("fromfriday").value +
+                            "~" +
+                            document.getElementById("tofriday").value,
+                        monday:
+                            document.getElementById("frommonday").value +
+                            "~" +
+                            document.getElementById("tomonday").value,
+                        saturday:
+                            document.getElementById("fromsaturday").value +
+                            "~" +
+                            document.getElementById("tosaturday").value,
+                        sunday:
+                            document.getElementById("fromsunday").value +
+                            "~" +
+                            document.getElementById("tosunday").value,
+                        thursday:
+                            document.getElementById("fromthursday").value +
+                            "~" +
+                            document.getElementById("tothursday").value,
+                        tuesday:
+                            document.getElementById("fromtuesday").value +
+                            "~" +
+                            document.getElementById("totuesday").value,
+                        wednesday:
+                            document.getElementById("fromwednesday").value +
+                            "~" +
+                            document.getElementById("towednesday").value,
                     },
                     intro: franchiseeInfo.franchiseeinput.franchiseeintro,
                     name: franchiseeInfo.franchiseeinput.franchiseename,
@@ -207,6 +229,7 @@ function AddFranchisee({ inputElement }) {
                 .then(function (res) {
                     listRefresh.setList((list) => [...list, res.data]);
                     console.log("입력 성공");
+                    console.log(res);
                     listRefresh.setAddFrenModalShow(false);
                     franchiseeInfo.setFranchiseeaddressinfo({
                         ...franchiseeInfo.franchiseeaddressInfo,
@@ -228,13 +251,32 @@ function AddFranchisee({ inputElement }) {
                 .catch(function (err) {
                     console.log(err);
                     // console.log(err.config.data)
-                    alert('공백인 값을 확인 하세요.')
+                    alert("공백인 값을 확인 하세요.");
                 });
-        }else{
+        } else {
             inputElement.current.focus();
         }
-        
     };
+
+    //영업시간
+
+    const [ordertime, setOrdertime] = useState({
+        fromfriday: "09:00",
+        tofriday: "09:00",
+        frommonday: "09:00",
+        tomonday: "09:00",
+        fromsaturday: "09:00",
+        tosaturday: "09:00",
+        fromsunday: "09:00",
+        tosunday: "09:00",
+        fromthursday: "09:00",
+        tothursday: "09:00",
+        fromtuesday: "09:00",
+        totuesday: "09:00",
+        fromwednesday: "09:00",
+        towednesday: "09:00",
+    });
+
     return (
         <>
             <Container>
@@ -332,7 +374,311 @@ function AddFranchisee({ inputElement }) {
                                 />
                             </Col>
                         </Row>
-
+                        <Row className="mt-3">
+                            <Accordion defaultActiveKey="0">
+                                <Accordion.Item eventKey="0">
+                                    <Accordion.Header>
+                                        영업시간
+                                    </Accordion.Header>
+                                    <Accordion.Body>
+                                        <div>
+                                            <label
+                                                name="monday"
+                                                style={{ marginRight: "10px" }}
+                                            >
+                                                월
+                                            </label>
+                                            <input
+                                                type="time"
+                                                id="frommonday"
+                                                value={ordertime.frommonday}
+                                                onChange={(e) =>
+                                                    setOrdertime({
+                                                        ...ordertime,
+                                                        [e.target.id]: [
+                                                            e.target.value,
+                                                        ],
+                                                    })
+                                                }
+                                            />
+                                            <span
+                                                style={{
+                                                    marginRight: "10px",
+                                                    marginLeft: "10px",
+                                                }}
+                                            >
+                                                ~
+                                            </span>
+                                            <input
+                                                type="time"
+                                                id="tomonday"
+                                                value={ordertime.tomonday}
+                                                onChange={(e) =>
+                                                    setOrdertime({
+                                                        ...ordertime,
+                                                        [e.target.id]: [
+                                                            e.target.value,
+                                                        ],
+                                                    })
+                                                }
+                                            />
+                                        </div>
+                                        <div>
+                                            <label
+                                                name="tuesday"
+                                                style={{ marginRight: "10px" }}
+                                            >
+                                                화
+                                            </label>
+                                            <input
+                                                type="time"
+                                                id="fromtuesday"
+                                                value={ordertime.fromtuesday}
+                                                onChange={(e) =>
+                                                    setOrdertime({
+                                                        ...ordertime,
+                                                        [e.target.id]: [
+                                                            e.target.value,
+                                                        ],
+                                                    })
+                                                }
+                                            />
+                                            <span
+                                                style={{
+                                                    marginRight: "10px",
+                                                    marginLeft: "10px",
+                                                }}
+                                            >
+                                                ~
+                                            </span>
+                                            <input
+                                                type="time"
+                                                id="totuesday"
+                                                value={ordertime.totuesday}
+                                                onChange={(e) =>
+                                                    setOrdertime({
+                                                        ...ordertime,
+                                                        [e.target.id]: [
+                                                            e.target.value,
+                                                        ],
+                                                    })
+                                                }
+                                            />
+                                        </div>
+                                        <div>
+                                            <label
+                                                name="wednesday"
+                                                style={{ marginRight: "10px" }}
+                                            >
+                                                수
+                                            </label>
+                                            <input
+                                                type="time"
+                                                id="fromwednesday"
+                                                value={ordertime.fromwednesday}
+                                                onChange={(e) =>
+                                                    setOrdertime({
+                                                        ...ordertime,
+                                                        [e.target.id]: [
+                                                            e.target.value,
+                                                        ],
+                                                    })
+                                                }
+                                            />
+                                            <span
+                                                style={{
+                                                    marginRight: "10px",
+                                                    marginLeft: "10px",
+                                                }}
+                                            >
+                                                ~
+                                            </span>
+                                            <input
+                                                type="time"
+                                                id="towednesday"
+                                                value={ordertime.towednesday}
+                                                onChange={(e) =>
+                                                    setOrdertime({
+                                                        ...ordertime,
+                                                        [e.target.id]: [
+                                                            e.target.value,
+                                                        ],
+                                                    })
+                                                }
+                                            />
+                                        </div>
+                                        <div>
+                                            <label
+                                                name="thursday"
+                                                style={{ marginRight: "10px" }}
+                                            >
+                                                목
+                                            </label>
+                                            <input
+                                                type="time"
+                                                id="fromthursday"
+                                                value={ordertime.fromthursday}
+                                                onChange={(e) =>
+                                                    setOrdertime({
+                                                        ...ordertime,
+                                                        [e.target.id]: [
+                                                            e.target.value,
+                                                        ],
+                                                    })
+                                                }
+                                            />
+                                            <span
+                                                style={{
+                                                    marginRight: "10px",
+                                                    marginLeft: "10px",
+                                                }}
+                                            >
+                                                ~
+                                            </span>
+                                            <input
+                                                type="time"
+                                                id="tothursday"
+                                                value={ordertime.tothursday}
+                                                onChange={(e) =>
+                                                    setOrdertime({
+                                                        ...ordertime,
+                                                        [e.target.id]: [
+                                                            e.target.value,
+                                                        ],
+                                                    })
+                                                }
+                                            />
+                                        </div>
+                                        <div>
+                                            <label
+                                                name="friday"
+                                                style={{ marginRight: "10px" }}
+                                            >
+                                                금
+                                            </label>
+                                            <input
+                                                type="time"
+                                                id="fromfriday"
+                                                value={ordertime.fromfriday}
+                                                onChange={(e) =>
+                                                    setOrdertime({
+                                                        ...ordertime,
+                                                        [e.target.id]: [
+                                                            e.target.value,
+                                                        ],
+                                                    })
+                                                }
+                                            />
+                                            <span
+                                                style={{
+                                                    marginRight: "10px",
+                                                    marginLeft: "10px",
+                                                }}
+                                            >
+                                                ~
+                                            </span>
+                                            <input
+                                                type="time"
+                                                id="tofriday"
+                                                value={ordertime.tofriday}
+                                                onChange={(e) =>
+                                                    setOrdertime({
+                                                        ...ordertime,
+                                                        [e.target.id]: [
+                                                            e.target.value,
+                                                        ],
+                                                    })
+                                                }
+                                            />
+                                        </div>
+                                        <div>
+                                            <label
+                                                name="saturday"
+                                                style={{ marginRight: "10px" }}
+                                            >
+                                                토
+                                            </label>
+                                            <input
+                                                type="time"
+                                                id="fromsaturday"
+                                                value={ordertime.fromsaturday}
+                                                onChange={(e) =>
+                                                    setOrdertime({
+                                                        ...ordertime,
+                                                        [e.target.id]: [
+                                                            e.target.value,
+                                                        ],
+                                                    })
+                                                }
+                                            />
+                                            <span
+                                                style={{
+                                                    marginRight: "10px",
+                                                    marginLeft: "10px",
+                                                }}
+                                            >
+                                                ~
+                                            </span>
+                                            <input
+                                                type="time"
+                                                id="tosaturday"
+                                                value={ordertime.tosaturday}
+                                                onChange={(e) =>
+                                                    setOrdertime({
+                                                        ...ordertime,
+                                                        [e.target.id]: [
+                                                            e.target.value,
+                                                        ],
+                                                    })
+                                                }
+                                            />
+                                        </div>
+                                        <div>
+                                            <label
+                                                name="sunday"
+                                                style={{ marginRight: "10px" }}
+                                            >
+                                                일
+                                            </label>
+                                            <input
+                                                type="time"
+                                                id="fromsunday"
+                                                value={ordertime.fromsunday}
+                                                onChange={(e) =>
+                                                    setOrdertime({
+                                                        ...ordertime,
+                                                        [e.target.id]: [
+                                                            e.target.value,
+                                                        ],
+                                                    })
+                                                }
+                                            />
+                                            <span
+                                                style={{
+                                                    marginRight: "10px",
+                                                    marginLeft: "10px",
+                                                }}
+                                            >
+                                                ~
+                                            </span>
+                                            <input
+                                                type="time"
+                                                id="tosunday"
+                                                value={ordertime.tosunday}
+                                                onChange={(e) =>
+                                                    setOrdertime({
+                                                        ...ordertime,
+                                                        [e.target.id]: [
+                                                            e.target.value,
+                                                        ],
+                                                    })
+                                                }
+                                            />
+                                        </div>
+                                    </Accordion.Body>
+                                </Accordion.Item>
+                            </Accordion>
+                        </Row>
                         <Row className="franchiseeadd-container--post">
                             <Row>
                                 <Col className="mt-3">

@@ -1,4 +1,3 @@
-import Footer from "../template/Footer";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { Container, Row, Col } from "react-bootstrap";
@@ -23,7 +22,7 @@ function LoginFormDesign() {
     };
 
     const loginOnclick = (e) => {
-        if (email != "" && password != "") {
+        if (email !== "" && password !== "") {
             axios({
                 method: "post",
                 url: "http://192.168.240.250:8080/api/v1/sign/signin",
@@ -58,7 +57,7 @@ function LoginFormDesign() {
                     alert("로그인 되었습니다.");
                 })
                 .catch((err) => {
-                    alert("error");
+                    alert(err.response.data.message);
                 });
         } else {
             alert("ID,PW를 입력해주세요");
@@ -102,7 +101,11 @@ function LoginFormDesign() {
                         name="pass"
                         placeholder="Password"
                         onChange={userinfoPassword}
-                        onKeyDown={(e)=>{if(e.key==='Enter'){loginOnclick()}}}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                loginOnclick();
+                            }
+                        }}
                     />
                     <span className="focus-input100"></span>
                     <span className="symbol-input100">

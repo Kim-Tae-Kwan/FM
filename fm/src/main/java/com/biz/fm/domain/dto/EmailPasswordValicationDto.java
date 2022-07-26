@@ -13,7 +13,8 @@ public class EmailPasswordValicationDto {
 	@NoArgsConstructor
 	public static class UpdatePassword {
 		private String email;
-		private String password;
+		private String newPassword;
+		private String code;
 	}
 
 }

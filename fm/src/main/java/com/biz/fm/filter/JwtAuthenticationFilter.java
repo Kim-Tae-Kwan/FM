@@ -13,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
-import com.biz.fm.exception.custom.ExpiredJwtException;
 import com.biz.fm.utils.JwtTokenProvider;
 
 import lombok.RequiredArgsConstructor;
@@ -23,9 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends GenericFilterBean {
 
-	// 생성자 주입
 	private final JwtTokenProvider jwtTokenProvider;
-	
 	
 	//doFilter() 메서드는 JWT 토큰의 인증 정보를 현재 실행중인 SecurityContext에 저장하는 역할을 수행합니다.
 	//request의 header에서 토큰을 가져오고 유효성 체크후 해당 토큰이 유효하다면 SecurityContext애 인증정보를 저장합니다.
@@ -41,7 +38,8 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         	
             // 토큰이 유효하면 토큰으로부터 유저 정보를 받아옵니다.
             Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
-
+            if(authentication == null) request.setAttribute("exception", "ForbiddenException");
+ 
             // SecurityContext 에 Authentication 객체를 저장합니다.
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

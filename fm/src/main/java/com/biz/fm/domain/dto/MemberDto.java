@@ -7,6 +7,7 @@ import javax.validation.constraints.Size;
 
 import com.biz.fm.domain.entity.Address;
 import com.biz.fm.domain.entity.Member;
+import com.biz.fm.utils.Role;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
@@ -40,6 +41,7 @@ public class MemberDto {
 		private String phoneNumber;
 		@JsonFormat(pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
 		private Date birth;
+		private Role role;
 		private String addressId;
 	}
 	

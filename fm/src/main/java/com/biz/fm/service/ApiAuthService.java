@@ -21,6 +21,7 @@ import com.biz.fm.repository.AppTokenRepository;
 import com.biz.fm.repository.ApplicationRepository;
 import com.biz.fm.repository.MemberRepository;
 import com.biz.fm.utils.JwtTokenProvider;
+import com.biz.fm.utils.Role;
 
 import lombok.RequiredArgsConstructor;
 
@@ -58,6 +59,8 @@ public class ApiAuthService {
 
 		// 토큰 데이터베이스에 토큰 정보를 입력하고
 		appTokenRepository.insert(resultInfo);
+		// member role 추가
+		memberRepository.updateRole(member.getId(), Role.ROLE_USER.toString() + "," + Role.ROLE_DEVELOPER.toString());
 
 		// 액세스 토큰에 대한 정보를 리턴해준다.
 		resultToken.put("accessToken", resultInfo.getAccessToken());

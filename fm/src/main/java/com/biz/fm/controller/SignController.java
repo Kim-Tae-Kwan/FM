@@ -42,11 +42,27 @@ public class SignController {
 		return ResponseEntity.ok(result);
 	}
 	
+	@PostMapping("/signup/guest")
+	@ApiOperation(value = "guest 회원가입", notes = "guest 회원가입을 한다.")
+	public ResponseEntity<?> signupGuest(
+			@ApiParam(value = "guest 회원가입 정보", required = true) @RequestBody SignUp signUpInfo) throws ParseException {
+
+		MemberResponse result = signService.signupGuest(signUpInfo);
+		return ResponseEntity.ok(result);
+	}
+	
 	@PostMapping("/signin")
 	@ApiOperation(value = "로그인", notes = "회원 로그인 한다.")
 	public ResponseEntity<SignInfo> signin(
 			@ApiParam(value = "로그인 정보", required = true) @RequestBody SignIn signInInfo) throws ParseException {
 		return ResponseEntity.ok(signService.signIn(signInInfo));
+	}
+	
+	@PostMapping("/signin/guest")
+	@ApiOperation(value = "guest 로그인", notes = "guest 회원 로그인 한다.")
+	public ResponseEntity<SignInfo> signinGuest(
+			@ApiParam(value = "guest 로그인 정보", required = true) @RequestBody SignIn signInInfo) throws ParseException {
+		return ResponseEntity.ok(signService.signInGuest(signInInfo));
 	}
 	
 	@PostMapping("/signout")

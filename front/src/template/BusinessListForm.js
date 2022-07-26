@@ -10,7 +10,6 @@ import {
     Form,
     Modal,
     FloatingLabel,
-    InputGroup,
 } from "react-bootstrap";
 import { useDaumPostcodePopup } from "react-daum-postcode";
 import "../css/AddMenu.css";
@@ -42,7 +41,9 @@ function menuAdd(
     setMenuAddModaShow,
     menuImgsrc
 ) {
-    console.log(menuDescription + " " + menuName + " " + menuPrice + " " + menuImgId);
+    console.log(
+        menuDescription + " " + menuName + " " + menuPrice + " " + menuImgId
+    );
     axios({
         method: "post",
         url:
@@ -78,34 +79,85 @@ function menuAdd(
 
 //가맹점리스트 정보 수정 함수
 function FranUpdate(isEdit, setIsEdit, franchiseeList, firstImgsrc) {
-    console.log(isEdit);
     setIsEdit(!isEdit);
-    console.log(firstImgsrc);
-    console.log(franchiseeList.businessNumber);
+    // console.log(isEdit);
+    // console.log(firstImgsrc);
+    // console.log(franchiseeList.businessNumber);
+
+    let tempTel = franchiseeList.tel.substring(
+        0,
+        franchiseeList.tel.length - 4
+    );
+    console.log(franchiseeList.tel.length);
+    console.log(tempTel);
+
+
+    if (tempTel.substring(0, 2) === "02") {
+        tempTel = tempTel.substring(2);
+        console.log("02 start " + tempTel);
+
+    } else {
+        tempTel = tempTel.substring(3);
+        console.log("not 02 start " + tempTel);
+
+    }
     if (isEdit === true) {
-        axios({
-            method: "put",
-            url:
-                `http://192.168.240.250:8080/api/v1/franchisee/` +
-                franchiseeList.businessNumber,
-            data: {
-                firstImg: firstImgsrc,
-                hours: {
-                    friday: "09:00 ~ 18:00",
-                    monday: "09:00 ~ 18:00",
-                    saturday: "09:00 ~ 18:00",
-                    sunday: "09:00 ~ 18:00",
-                    thursday: "09:00 ~ 18:00",
-                    tuesday: "09:00 ~ 18:00",
-                    wednesday: "09:00 ~ 18:00",
+        let chknum = /^[0-9]+$/;
+        if (
+            franchiseeList.tel.length > 8 &&
+            franchiseeList.tel.length < 12 &&
+            chknum.test(franchiseeList.tel) &&
+            tempTel.length > 2
+        ) {
+            axios({
+                method: "put",
+                url:
+                    `http://192.168.240.250:8080/api/v1/franchisee/` +
+                    franchiseeList.businessNumber,
+                data: {
+                    firstImg: firstImgsrc,
+                    hours: {
+                        friday:
+                            document.getElementById("fromfriday").value +
+                            " ~ " +
+                            document.getElementById("tofriday").value,
+                        monday:
+                            document.getElementById("frommonday").value +
+                            " ~ " +
+                            document.getElementById("tomonday").value,
+                        saturday:
+                            document.getElementById("fromsaturday").value +
+                            " ~ " +
+                            document.getElementById("tosaturday").value,
+                        sunday:
+                            document.getElementById("fromsunday").value +
+                            " ~ " +
+                            document.getElementById("tosunday").value,
+                        thursday:
+                            document.getElementById("fromthursday").value +
+                            " ~ " +
+                            document.getElementById("tothursday").value,
+                        tuesday:
+                            document.getElementById("fromtuesday").value +
+                            " ~ " +
+                            document.getElementById("totuesday").value,
+                        wednesday:
+                            document.getElementById("fromwednesday").value +
+                            " ~ " +
+                            document.getElementById("towednesday").value,
+                    },
+                    intro: franchiseeList.intro,
+                    tel: franchiseeList.tel,
                 },
-                intro: franchiseeList.intro,
-                tel: franchiseeList.tel,
-            },
-        }).then(function (res) {
-            console.log("가맹점 정보를 수정하였습니다");
-            console.log(res.data);
-        });
+            }).then(function (res) {
+                console.log("가맹점 정보를 수정하였습니다");
+                console.log(res.data);
+                // setFranchiseeList(res.data)
+            });
+        } else {
+            alert("전화 번호를 다시 확인하고 입력하여 주십시오");
+            setIsEdit(true);
+        }
     }
 }
 
@@ -124,7 +176,7 @@ function BusinessListForm({ franchiseeList: f }) {
     const [firstImgsrc, setFirstImgsrc] = useState(franchiseeList.firstImg);
     //메뉴 이미지 useState
     const [menuImgsrc, setMenuImgsrc] = useState(
-        "http://192.168.240.250:8080/api/v1/file/a70427302ce343c2bd29054e7dd82cc0-default-image.jpg"
+        "/api/v1/file/a70427302ce343c2bd29054e7dd82cc0-default-image.jpg"
     );
     const [menuImgId, setMenuImgId] = useState("");
 
@@ -183,7 +235,6 @@ function BusinessListForm({ franchiseeList: f }) {
             console.log(res.data[0].path);
             setMenuImgsrc(res.data[0].path);
             setMenuImgId(res.data[0].id);
-            
         });
     };
 
@@ -217,16 +268,20 @@ function BusinessListForm({ franchiseeList: f }) {
         setMenuName("");
         setMenuPrice("");
         setMenuDescription("");
-        setMenuImgsrc("http://192.168.240.250:8080/api/v1/file/a70427302ce343c2bd29054e7dd82cc0-default-image.jpg");
-        console.log('asdfasdf');
+        setMenuImgsrc(
+            "/api/v1/file/a70427302ce343c2bd29054e7dd82cc0-default-image.jpg"
+        );
+        // console.log('asdfasdf');
     }
 
     //가맹점 메뉴 조회
-    const [menuList, setMenuList] = useState([{
-        image:{
-            path:''
-        }
-    }]);
+    const [menuList, setMenuList] = useState([
+        {
+            image: {
+                path: "/api/v1/file/a70427302ce343c2bd29054e7dd82cc0-default-image.jpg",
+            },
+        },
+    ]);
     useEffect(() => {
         axios({
             method: "get",
@@ -242,9 +297,9 @@ function BusinessListForm({ franchiseeList: f }) {
                 if (error.response.status === 404) {
                     console.log("메뉴가 없습니다");
                 }
+                setMenuList([]);
             });
     }, []);
-    console.log('메뉴리스트',menuList);
     //주소변경
     let scriptUrl =
         "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
@@ -292,7 +347,7 @@ function BusinessListForm({ franchiseeList: f }) {
     function CardClick(ele) {
         setCardChk(true);
         setMenuAddModaShow(true);
-        console.log('asdfasdf',ele);
+        console.log("asdfasdf", ele);
     }
 
     //메뉴 수정 통신
@@ -314,14 +369,48 @@ function BusinessListForm({ franchiseeList: f }) {
                 // setMenuList(...menuList, card);
                 setCardEditChk(true);
                 menuList.map((ele, idx) => {
-                    if (ele.id == cardmenu.id) {
+                    if (ele.id === cardmenu.id) {
                         tempArr[idx] = cardmenu;
                     }
+                    return setMenuList(tempArr);
                 });
-                setMenuList(tempArr);
+                // setMenuList(tempArr);
             });
         }
     };
+
+    //영업 시간 통신
+
+    const [ordertime, setOrdertime] = useState({});
+
+    useEffect(() => {
+        axios({
+            method: "get",
+            url:
+                `http://192.168.240.250:8080/api/v1/franchisee/` +
+                franchiseeList.businessNumber +
+                `/schedule`,
+        }).then(function (res) {
+            // setOrderbeforetime(res.data);
+            setOrdertime({
+                frommonday: res.data.monday.split("~")[0],
+                tomonday: res.data.monday.split("~")[1],
+                fromtuesday: res.data.tuesday.split("~")[0],
+                totuesday: res.data.tuesday.split("~")[1],
+                fromwednesday: res.data.wednesday.split("~")[0],
+                towednesday: res.data.wednesday.split("~")[1],
+                fromthursday: res.data.thursday.split("~")[0],
+                tothursday: res.data.thursday.split("~")[1],
+                fromfriday: res.data.friday.split("~")[0],
+                tofriday: res.data.friday.split("~")[1],
+                fromsaturday: res.data.saturday.split("~")[0],
+                tosaturday: res.data.saturday.split("~")[1],
+                fromsunday: res.data.sunday.split("~")[0],
+                tosunday: res.data.sunday.split("~")[1],
+            });
+        });
+    }, []);
+    console.log(ordertime);
 
     return (
         <>
@@ -338,15 +427,13 @@ function BusinessListForm({ franchiseeList: f }) {
                                         >
                                             <label htmlFor="file-input">
                                                 <img
+                                                    alt="가맹점이미지"
+                                                    className="businessListImg"
                                                     src={
                                                         "http://192.168.240.250:8080" +
                                                         firstImgsrc
                                                     }
-                                                    // className="rounded-circle"
-                                                    style={{
-                                                        width: "300px",
-                                                        height: "300px",
-                                                    }}
+                                                    // className="rounded-c ircle"
                                                 />
                                             </label>
                                             <input
@@ -357,16 +444,17 @@ function BusinessListForm({ franchiseeList: f }) {
                                         </div>
                                     ) : (
                                         <img
+                                            alt="가맹점이미지"
+                                            className="businessListImg"
                                             src={
                                                 "http://192.168.240.250:8080" +
                                                 firstImgsrc
                                             }
-                                            // className="rounded-circle"
-                                            width="300px"
-                                            height="300px"
                                         />
                                     )}
-                                    <h4>{franchiseeList.name}</h4>
+                                    <h4 style={{ paddingTop: "15px" }}>
+                                        {franchiseeList.name}
+                                    </h4>
                                     <p className="text-secondary">
                                         {isEdit ? (
                                             <input
@@ -396,8 +484,12 @@ function BusinessListForm({ franchiseeList: f }) {
                                     <div className="col-sm-2">
                                         <h6>사업자번호</h6>
                                     </div>
-                                    <div className="col-sm-9 text-secondary">
-                                        {franchiseeList.businessNumber}
+                                    <div className="col-sm-9 text-secondary businessListInput">
+                                        {/* {franchiseeList.businessNumber} */}
+                                        {franchiseeList.businessNumber.replace(
+                                            /(\d{3})(\d{5})(\d{2})/,
+                                            "$1-$2-$3"
+                                        )}
                                     </div>
                                     <div
                                         className="col-sm-1 btn btnEditInfo"
@@ -411,7 +503,7 @@ function BusinessListForm({ franchiseeList: f }) {
                                             );
                                         }}
                                     >
-                                        edit
+                                        수정
                                     </div>
                                 </div>
                                 <hr />
@@ -424,16 +516,29 @@ function BusinessListForm({ franchiseeList: f }) {
                                             <input
                                                 name="tel"
                                                 value={franchiseeList.tel}
-                                                onChange={(e) =>
+                                                onChange={(e) => {
                                                     setFranchiseeList({
                                                         ...franchiseeList,
                                                         [e.target.name]:
                                                             e.target.value,
-                                                    })
-                                                }
+                                                    });
+                                                }}
                                             />
                                         ) : (
-                                            <>{franchiseeList.tel}</>
+                                            <div className="businessListInput">
+                                                {franchiseeList.tel.substring(
+                                                    0,
+                                                    2
+                                                ) === "02"
+                                                    ? franchiseeList.tel.replace(
+                                                          /(\d{2})(\d{3,4})(\d{4})/,
+                                                          "$1-$2-$3"
+                                                      )
+                                                    : franchiseeList.tel.replace(
+                                                          /(\d{3})(\d{3,4})(\d{4})/,
+                                                          "$1-$2-$3"
+                                                      )}
+                                            </div>
                                         )}
                                     </div>
                                 </div>
@@ -442,10 +547,480 @@ function BusinessListForm({ franchiseeList: f }) {
                                     <div className="col-sm-2">
                                         <h6>주소</h6>
                                     </div>
-                                    <div className="col-sm-10 text-secondary">
+                                    <div className="col-sm-10 text-secondary businessListInput">
                                         {franchiseeList.address.road +
                                             " " +
                                             franchiseeList.address.detail}
+                                    </div>
+                                </div>
+                                <hr />
+                                <div className="row">
+                                    <div className="col-sm-2">
+                                        <h6>영업시간</h6>
+                                    </div>
+                                    <div className="col-sm-9 text-secondary ordertime">
+                                        {isEdit ? (
+                                            <>
+                                                <div style={{ height: "30px" }}>
+                                                    <label
+                                                        name="monday"
+                                                        style={{
+                                                            marginRight: "10px",
+                                                        }}
+                                                    >
+                                                        월
+                                                    </label>
+                                                    <input
+                                                        type="time"
+                                                        id="frommonday"
+                                                        value={
+                                                            ordertime.frommonday.split(
+                                                                " "
+                                                            )[0]
+                                                        }
+                                                        onChange={(e) => {
+                                                            setOrdertime({
+                                                                ...ordertime,
+                                                                [e.target.id]:
+                                                                    e.target
+                                                                        .value,
+                                                            });
+                                                        }}
+                                                    />
+                                                    <span
+                                                        style={{
+                                                            marginRight: "10px",
+                                                            marginLeft: "10px",
+                                                        }}
+                                                    >
+                                                        ~
+                                                    </span>
+                                                    <input
+                                                        type="time"
+                                                        id="tomonday"
+                                                        value={
+                                                            ordertime.tomonday.split(
+                                                                " "
+                                                            )[1]
+                                                        }
+                                                        onChange={(e) => {
+                                                            setOrdertime({
+                                                                ...ordertime,
+                                                                [e.target.id]:
+                                                                    e.target
+                                                                        .value,
+                                                            });
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div style={{ height: "30px" }}>
+                                                    <label
+                                                        name="tuesday"
+                                                        style={{
+                                                            marginRight: "10px",
+                                                        }}
+                                                    >
+                                                        화
+                                                    </label>
+                                                    <input
+                                                        type="time"
+                                                        id="fromtuesday"
+                                                        value={
+                                                            ordertime.fromtuesday.split(
+                                                                " "
+                                                            )[0]
+                                                        }
+                                                        onChange={(e) => {
+                                                            setOrdertime({
+                                                                ...ordertime,
+                                                                [e.target.id]:
+                                                                    e.target
+                                                                        .value,
+                                                            });
+                                                        }}
+                                                    />
+                                                    <span
+                                                        style={{
+                                                            marginRight: "10px",
+                                                            marginLeft: "10px",
+                                                        }}
+                                                    >
+                                                        ~
+                                                    </span>
+                                                    <input
+                                                        type="time"
+                                                        id="totuesday"
+                                                        value={
+                                                            ordertime.totuesday.split(
+                                                                " "
+                                                            )[1]
+                                                        }
+                                                        onChange={(e) => {
+                                                            setOrdertime({
+                                                                ...ordertime,
+                                                                [e.target.id]:
+                                                                    e.target
+                                                                        .value,
+                                                            });
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div style={{ height: "30px" }}>
+                                                    <label
+                                                        name="wednesday"
+                                                        style={{
+                                                            marginRight: "10px",
+                                                        }}
+                                                    >
+                                                        수
+                                                    </label>
+                                                    <input
+                                                        type="time"
+                                                        id="fromwednesday"
+                                                        value={
+                                                            ordertime.fromwednesday.split(
+                                                                " "
+                                                            )[0]
+                                                        }
+                                                        onChange={(e) => {
+                                                            setOrdertime({
+                                                                ...ordertime,
+                                                                [e.target.id]:
+                                                                    e.target
+                                                                        .value,
+                                                            });
+                                                        }}
+                                                    />
+                                                    <span
+                                                        style={{
+                                                            marginRight: "10px",
+                                                            marginLeft: "10px",
+                                                        }}
+                                                    >
+                                                        ~
+                                                    </span>
+                                                    <input
+                                                        type="time"
+                                                        id="towednesday"
+                                                        value={
+                                                            ordertime.towednesday.split(
+                                                                " "
+                                                            )[1]
+                                                        }
+                                                        onChange={(e) => {
+                                                            setOrdertime({
+                                                                ...ordertime,
+                                                                [e.target.id]:
+                                                                    e.target
+                                                                        .value,
+                                                            });
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div style={{ height: "30px" }}>
+                                                    <label
+                                                        name="thursday"
+                                                        style={{
+                                                            marginRight: "10px",
+                                                        }}
+                                                    >
+                                                        목
+                                                    </label>
+                                                    <input
+                                                        type="time"
+                                                        id="fromthursday"
+                                                        value={
+                                                            ordertime.fromthursday.split(
+                                                                " "
+                                                            )[0]
+                                                        }
+                                                        onChange={(e) => {
+                                                            setOrdertime({
+                                                                ...ordertime,
+                                                                [e.target.id]:
+                                                                    e.target
+                                                                        .value,
+                                                            });
+                                                        }}
+                                                    />
+                                                    <span
+                                                        style={{
+                                                            marginRight: "10px",
+                                                            marginLeft: "10px",
+                                                        }}
+                                                    >
+                                                        ~
+                                                    </span>
+                                                    <input
+                                                        type="time"
+                                                        id="tothursday"
+                                                        value={
+                                                            ordertime.tothursday.split(
+                                                                " "
+                                                            )[1]
+                                                        }
+                                                        onChange={(e) => {
+                                                            setOrdertime({
+                                                                ...ordertime,
+                                                                [e.target.id]:
+                                                                    e.target
+                                                                        .value,
+                                                            });
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div style={{ height: "30px" }}>
+                                                    <label
+                                                        name="friday"
+                                                        style={{
+                                                            marginRight: "10px",
+                                                        }}
+                                                    >
+                                                        금
+                                                    </label>
+                                                    <input
+                                                        type="time"
+                                                        id="fromfriday"
+                                                        value={
+                                                            ordertime.fromfriday.split(
+                                                                " "
+                                                            )[0]
+                                                        }
+                                                        onChange={(e) => {
+                                                            setOrdertime({
+                                                                ...ordertime,
+                                                                [e.target.id]:
+                                                                    e.target
+                                                                        .value,
+                                                            });
+                                                        }}
+                                                    />
+                                                    <span
+                                                        style={{
+                                                            marginRight: "10px",
+                                                            marginLeft: "10px",
+                                                        }}
+                                                    >
+                                                        ~
+                                                    </span>
+                                                    <input
+                                                        type="time"
+                                                        id="tofriday"
+                                                        value={
+                                                            ordertime.tofriday.split(
+                                                                " "
+                                                            )[1]
+                                                        }
+                                                        onChange={(e) => {
+                                                            setOrdertime({
+                                                                ...ordertime,
+                                                                [e.target.id]:
+                                                                    e.target
+                                                                        .value,
+                                                            });
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div style={{ height: "30px" }}>
+                                                    <label
+                                                        name="saturday"
+                                                        style={{
+                                                            marginRight: "10px",
+                                                        }}
+                                                    >
+                                                        토
+                                                    </label>
+                                                    <input
+                                                        type="time"
+                                                        id="fromsaturday"
+                                                        value={
+                                                            ordertime.fromsaturday.split(
+                                                                " "
+                                                            )[0]
+                                                        }
+                                                        onChange={(e) => {
+                                                            setOrdertime({
+                                                                ...ordertime,
+                                                                [e.target.id]:
+                                                                    e.target
+                                                                        .value,
+                                                            });
+                                                        }}
+                                                    />
+                                                    <span
+                                                        style={{
+                                                            marginRight: "10px",
+                                                            marginLeft: "10px",
+                                                        }}
+                                                    >
+                                                        ~
+                                                    </span>
+                                                    <input
+                                                        type="time"
+                                                        id="tosaturday"
+                                                        value={
+                                                            ordertime.tosaturday.split(
+                                                                " "
+                                                            )[1]
+                                                        }
+                                                        onChange={(e) => {
+                                                            setOrdertime({
+                                                                ...ordertime,
+                                                                [e.target.id]:
+                                                                    e.target
+                                                                        .value,
+                                                            });
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div style={{ height: "30px" }}>
+                                                    <label
+                                                        name="sunday"
+                                                        style={{
+                                                            marginRight: "10px",
+                                                        }}
+                                                    >
+                                                        일
+                                                    </label>
+                                                    <input
+                                                        type="time"
+                                                        id="fromsunday"
+                                                        value={
+                                                            ordertime.fromsunday.split(
+                                                                " "
+                                                            )[0]
+                                                        }
+                                                        onChange={(e) => {
+                                                            setOrdertime({
+                                                                ...ordertime,
+                                                                [e.target.id]:
+                                                                    e.target
+                                                                        .value,
+                                                            });
+                                                        }}
+                                                    />
+                                                    <span
+                                                        style={{
+                                                            marginRight: "10px",
+                                                            marginLeft: "10px",
+                                                        }}
+                                                    >
+                                                        ~
+                                                    </span>
+                                                    <input
+                                                        type="time"
+                                                        id="tosunday"
+                                                        value={
+                                                            ordertime.tosunday.split(
+                                                                " "
+                                                            )[1]
+                                                        }
+                                                        onChange={(e) => {
+                                                            setOrdertime({
+                                                                ...ordertime,
+                                                                [e.target.id]:
+                                                                    e.target
+                                                                        .value,
+                                                            });
+                                                        }}
+                                                    />
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div className="businessListInput ordertime">
+                                                <div style={{ height: "20px" }}>
+                                                    <label
+                                                        style={{
+                                                            marginRight: "10px",
+                                                        }}
+                                                    >
+                                                        월
+                                                    </label>{" "}
+                                                    {ordertime.frommonday +
+                                                        "~" +
+                                                        ordertime.tomonday}
+                                                    {/* {orderbeforetime.monday} */}
+                                                </div>
+                                                <div style={{ height: "20px" }}>
+                                                    <label
+                                                        style={{
+                                                            marginRight: "10px",
+                                                        }}
+                                                    >
+                                                        화
+                                                    </label>{" "}
+                                                    {/* {orderbeforetime.tuesday} */}
+                                                    {ordertime.fromtuesday +
+                                                        "~" +
+                                                        ordertime.totuesday}
+                                                </div>
+                                                <div style={{ height: "20px" }}>
+                                                    <label
+                                                        style={{
+                                                            marginRight: "10px",
+                                                        }}
+                                                    >
+                                                        수
+                                                    </label>{" "}
+                                                    {/* {orderbeforetime.wednesday} */}
+                                                    {ordertime.fromwednesday +
+                                                        "~" +
+                                                        ordertime.towednesday}
+                                                </div>
+                                                <div style={{ height: "20px" }}>
+                                                    <label
+                                                        style={{
+                                                            marginRight: "10px",
+                                                        }}
+                                                    >
+                                                        목
+                                                    </label>{" "}
+                                                    {/* {orderbeforetime.thursday} */}
+                                                    {ordertime.fromthursday +
+                                                        "~" +
+                                                        ordertime.tothursday}
+                                                </div>
+                                                <div style={{ height: "20px" }}>
+                                                    <label
+                                                        style={{
+                                                            marginRight: "10px",
+                                                        }}
+                                                    >
+                                                        금
+                                                    </label>{" "}
+                                                    {/* {orderbeforetime.friday} */}
+                                                    {ordertime.fromfriday +
+                                                        "~" +
+                                                        ordertime.tofriday}
+                                                </div>
+                                                <div style={{ height: "20px" }}>
+                                                    <label
+                                                        style={{
+                                                            marginRight: "10px",
+                                                        }}
+                                                    >
+                                                        토
+                                                    </label>{" "}
+                                                    {/* {orderbeforetime.saturday} */}
+                                                    {ordertime.fromsaturday +
+                                                        "~" +
+                                                        ordertime.tosaturday}
+                                                </div>
+                                                <div style={{ height: "20px" }}>
+                                                    <label
+                                                        style={{
+                                                            marginRight: "10px",
+                                                        }}
+                                                    >
+                                                        일
+                                                    </label>{" "}
+                                                    {/* {orderbeforetime.sunday} */}
+                                                    {ordertime.fromsunday +
+                                                        "~" +
+                                                        ordertime.tosunday}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -467,7 +1042,9 @@ function BusinessListForm({ franchiseeList: f }) {
                             >
                                 <button
                                     className="btn btnMenu btnAddMenu"
-                                    onClick={() => {MenuModalShow();}}
+                                    onClick={() => {
+                                        MenuModalShow();
+                                    }}
                                 >
                                     +
                                 </button>
@@ -480,11 +1057,9 @@ function BusinessListForm({ franchiseeList: f }) {
                                 >
                                     <Modal.Header closeButton>
                                         <Modal.Title>
-                                            {cardchk ? (
-                                                "메뉴 수정"
-                                            ) : (
-                                                "메뉴 추가"
-                                            )}
+                                            {cardchk
+                                                ? "메뉴 수정"
+                                                : "메뉴 추가"}
                                         </Modal.Title>
                                     </Modal.Header>
                                     <Modal.Body>
@@ -492,22 +1067,32 @@ function BusinessListForm({ franchiseeList: f }) {
                                             <div className="ex-layout">
                                                 <div className="main">
                                                     <div className="left-menu">
-                                                    {cardchk ? (
-                                                        <img
-                                                        src={`http://192.168.240.250:8080`+cardmenu.image.path}
-                                                        style={{
-                                                            width: "200px"
-                                                        }}
-                                                    />
-                                                    ) : (
-                                                        <img
-                                                            src={`http://192.168.240.250:8080`+menuImgsrc}
-                                                            style={{
-                                                                width: "200px"
-                                                            }}
-                                                        />
-                                                    )}
-                                                        
+                                                        {cardchk ? (
+                                                            <img
+                                                                alt="메뉴이미지"
+                                                                src={
+                                                                    `http://192.168.240.250:8080` +
+                                                                    cardmenu
+                                                                        .image
+                                                                        .path
+                                                                }
+                                                                style={{
+                                                                    width: "200px",
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            <img
+                                                                alt="메뉴이미지"
+                                                                src={
+                                                                    `http://192.168.240.250:8080` +
+                                                                    menuImgsrc
+                                                                }
+                                                                style={{
+                                                                    width: "200px",
+                                                                }}
+                                                            />
+                                                        )}
+
                                                         <br />
                                                     </div>
                                                     <div className="content">
@@ -517,13 +1102,29 @@ function BusinessListForm({ franchiseeList: f }) {
                                                                     메뉴 이름
                                                                 </Form.Label>
                                                                 {cardchk ? (
-                                                                    <Form.Control name="name" type="text" value={cardmenu.name}
-                                                                        readOnly={cardEditChk}
-                                                                        onChange={(e) => {
+                                                                    <Form.Control
+                                                                        name="name"
+                                                                        type="text"
+                                                                        value={
+                                                                            cardmenu.name
+                                                                        }
+                                                                        readOnly={
+                                                                            cardEditChk
+                                                                        }
+                                                                        onChange={(
+                                                                            e
+                                                                        ) => {
                                                                             setCardMenu(
                                                                                 {
                                                                                     ...cardmenu,
-                                                                                    [e.target.name]:[e.target.value],
+                                                                                    [e
+                                                                                        .target
+                                                                                        .name]:
+                                                                                        [
+                                                                                            e
+                                                                                                .target
+                                                                                                .value,
+                                                                                        ],
                                                                                 }
                                                                             );
                                                                         }}
@@ -535,8 +1136,12 @@ function BusinessListForm({ franchiseeList: f }) {
                                                                         type="text"
                                                                         placeholder="메뉴 이름을 적어주세요."
                                                                         autoFocus
-                                                                        value={menuName}
-                                                                        onChange={menuNameChange}
+                                                                        value={
+                                                                            menuName
+                                                                        }
+                                                                        onChange={
+                                                                            menuNameChange
+                                                                        }
                                                                     />
                                                                 )}
                                                             </Form.Group>
@@ -550,14 +1155,27 @@ function BusinessListForm({ franchiseeList: f }) {
                                                                     <Form.Control
                                                                         name="price"
                                                                         type="text"
-                                                                        value={cardmenu.price}
-                                                                        readOnly={cardEditChk}
+                                                                        value={
+                                                                            cardmenu.price
+                                                                        }
+                                                                        readOnly={
+                                                                            cardEditChk
+                                                                        }
                                                                         autoFocus
-                                                                        onChange={(e) => {
+                                                                        onChange={(
+                                                                            e
+                                                                        ) => {
                                                                             setCardMenu(
                                                                                 {
                                                                                     ...cardmenu,
-                                                                                    [e.target.name]:[e.target.value]
+                                                                                    [e
+                                                                                        .target
+                                                                                        .name]:
+                                                                                        [
+                                                                                            e
+                                                                                                .target
+                                                                                                .value,
+                                                                                        ],
                                                                                 }
                                                                             );
                                                                         }}
@@ -566,10 +1184,14 @@ function BusinessListForm({ franchiseeList: f }) {
                                                                     <Form.Control
                                                                         name="price"
                                                                         type="text"
-                                                                        value={menuPrice}
+                                                                        value={
+                                                                            menuPrice
+                                                                        }
                                                                         placeholder="메뉴 가격을 적어주세요."
                                                                         autoFocus
-                                                                        onChange={menuPriceChange}
+                                                                        onChange={
+                                                                            menuPriceChange
+                                                                        }
                                                                     />
                                                                 )}
                                                             </Form.Group>
@@ -587,7 +1209,9 @@ function BusinessListForm({ franchiseeList: f }) {
                                                                         <Form.Control
                                                                             type="file"
                                                                             id="ex_file"
-                                                                            onChange={onLoadMenuimage}
+                                                                            onChange={
+                                                                                onLoadMenuimage
+                                                                            }
                                                                         />
                                                                     </>
                                                                 )}
@@ -600,24 +1224,30 @@ function BusinessListForm({ franchiseeList: f }) {
                                         <FloatingLabel label="메뉴 소개">
                                             {cardchk ? (
                                                 <Form.Control
-                                                    onChange={(e) => { setCardMenu({
+                                                    onChange={(e) => {
+                                                        setCardMenu({
                                                             ...cardmenu,
-                                                            [e.target.name]: [e.target.value],
+                                                            [e.target.name]: [
+                                                                e.target.value,
+                                                            ],
                                                         });
                                                     }}
                                                     name="description"
                                                     as="textarea"
                                                     value={cardmenu.description}
                                                     readOnly={cardEditChk}
-                                                    style={{ 
-                                                        height: "150px", 
-                                                        resize: "none" 
+                                                    style={{
+                                                        height: "150px",
+                                                        resize: "none",
                                                     }}
                                                 />
                                             ) : (
                                                 <Form.Control
-                                                    onChange={ menuDescriptionChange }
-                                                    name="description" as="textarea"
+                                                    onChange={
+                                                        menuDescriptionChange
+                                                    }
+                                                    name="description"
+                                                    as="textarea"
                                                     value={menuDescription}
                                                     placeholder="메뉴 소개"
                                                     style={{
@@ -636,7 +1266,10 @@ function BusinessListForm({ franchiseeList: f }) {
                                             뒤로
                                         </Button>
                                         {cardchk ? (
-                                            <Button variant="primary" onClick={MenuEdit} >
+                                            <Button
+                                                variant="primary"
+                                                onClick={MenuEdit}
+                                            >
                                                 수정
                                             </Button>
                                         ) : (
@@ -696,10 +1329,16 @@ function BusinessListForm({ franchiseeList: f }) {
                                                         <Card className="AddMenu--MenuList__Menu">
                                                             <Card.Header>
                                                                 <Button
-                                                                    role={ "button" }
+                                                                    role={
+                                                                        "button"
+                                                                    }
                                                                     onClick={() => {
-                                                                        setShow(true);
-                                                                        setData(ele);
+                                                                        setShow(
+                                                                            true
+                                                                        );
+                                                                        setData(
+                                                                            ele
+                                                                        );
                                                                     }}
                                                                 >
                                                                     삭제
@@ -708,21 +1347,41 @@ function BusinessListForm({ franchiseeList: f }) {
                                                             <div
                                                                 role="button"
                                                                 onClick={() => {
-                                                                    setCardMenu(ele);
-                                                                    CardClick(ele);
+                                                                    setCardMenu(
+                                                                        ele
+                                                                    );
+                                                                    CardClick(
+                                                                        ele
+                                                                    );
                                                                 }}
                                                             >
                                                                 <Card.Img
                                                                     variant="top"
                                                                     className="AddMenu--MenuList__MenuImg"
-                                                                    src={'http://192.168.240.250:8080'+menuList[idx].image.path}
+                                                                    src={
+                                                                        "http://192.168.240.250:8080" +
+                                                                        menuList[
+                                                                            idx
+                                                                        ].image
+                                                                            .path
+                                                                    }
                                                                 />
                                                                 <Card.Body>
                                                                     <Card.Title>
-                                                                        {menuList[idx].name}
+                                                                        {
+                                                                            menuList[
+                                                                                idx
+                                                                            ]
+                                                                                .name
+                                                                        }
                                                                     </Card.Title>
-                                                                    <Card.Text>
-                                                                        {menuList[idx].price}
+                                                                    <Card.Text
+                                                                        style={{
+                                                                            paddingTop:
+                                                                                "4px",
+                                                                        }}
+                                                                    >
+                                                                        {`${menuList[idx].price}원`}
                                                                     </Card.Text>
                                                                 </Card.Body>
                                                             </div>

@@ -59,3 +59,33 @@
     font-weight: normal;
     font-style: normal;
 }
+
+@media (max-width: 991px) {
+    .navbar{
+        height: 79px;
+    }
+    .navbar-nav {
+        float: right;
+    }
+
+    .dropdown{
+        position: absolute;
+        top: 10px;
+        width: 130px;
+        right: 60px;
+    }
+    .nav-item:first-child {
+        margin-top: 10px;
+    }
+    .nav-item{
+        color: transparent;
+        z-index: 1;
+    }
+    #Header--Nav__BusinessList {
+        color: black;
+        background-color: rgb(220, 220, 220);
+    }
+    .element.style {
+        background-color: white;
+    }
+  }

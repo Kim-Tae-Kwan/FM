@@ -2,20 +2,17 @@ package com.biz.fm.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 import com.biz.fm.domain.dto.FranchiseeDto.FranchiseeResponse;
 import com.biz.fm.domain.dto.MemberDto.MemberResponse;
-import com.biz.fm.domain.dto.MemberDto.MemberUp;
 import com.biz.fm.domain.dto.MemberDto.MemberUpdate;
 import com.biz.fm.domain.entity.Address;
 import com.biz.fm.domain.entity.Application;
 import com.biz.fm.domain.entity.Franchisee;
 import com.biz.fm.domain.entity.Member;
 import com.biz.fm.exception.custom.DeleteFailException;
-import com.biz.fm.exception.custom.InsertFailException;
 import com.biz.fm.exception.custom.UpdateFailException;
 import com.biz.fm.repository.AddressRepository;
 import com.biz.fm.repository.ApplicationRepository;
@@ -78,16 +75,6 @@ public class MemberService {
 		if(apps == null) throw new NotFoundException(null);
 		
 		return apps;
-	}
-	
-	public MemberResponse insert(MemberUp member) {
-		member.setId(UUID.randomUUID().toString().replace("-", ""));
-		
-		int result = memberRepository.insert(member);
-		if(result > 0) {
-			return memberRepository.findById(member.getId()).toMemberRead();
-		}
-		else throw new InsertFailException();
 	}
 	
 	public MemberResponse update(String memberId, MemberUpdate memberUpdate) {

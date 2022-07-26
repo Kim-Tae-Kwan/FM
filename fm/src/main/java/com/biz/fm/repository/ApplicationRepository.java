@@ -30,9 +30,6 @@ public interface ApplicationRepository {
 			+ "(#{id}, #{name}, #{apiKey}, #{memberId})")
 	public int insert(Application appIn);
 	
-//	@Update("UPDATE application SET name = #{name} WHERE api_key = #{key}")
-//	public int nameUpdate(AppUpdate updateInfo);
-	
 	@Update("UPDATE application SET name = #{name} WHERE id = #{appId}")
 	public int nameUpdate(AppUpdate updateName);
 	

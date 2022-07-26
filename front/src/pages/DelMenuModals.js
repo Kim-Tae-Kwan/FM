@@ -1,6 +1,5 @@
-import { List } from "@material-ui/core";
 import axios from "axios";
-import React, { useContext } from "react";
+import React from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
@@ -14,7 +13,7 @@ const DelMenuModals = ({ show, setShow, data, menuList, setMenuList }) => {
             setShow(false);
             setMenuList(
                 menuList.filter((menuList) => {
-                    return menuList.id != res.data.id;
+                    return menuList.id !== res.data.id;
                 })
             );
         });

@@ -9,6 +9,10 @@
       name="description"
       content="Web site created using create-react-app"
     />
+    <!-- react -->
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+
     <!-- naver map api -->
     <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=j3827m3yos"></script>
     
@@ -30,7 +34,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
-
+    <script type="text/javascript" src="./MarkerClustering.js"></script>
     <style type="text/css">
       html,body {
         height:100%
@@ -49,8 +53,71 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root">
-      
+        
     </div>
+    <!-- <div id="root" style="width:100%;height:100%;padding:0;margin:0;"></div> -->
+    
+    <script>
+        //마커 디자인
+        var htmlMarker1 = {
+            content: 
+            `<div class="naverApiMap-mappingMarker">
+                <div class="naverApiMap-mappingMarker--imageZone">
+                    <img src="./img/cafeImg.png">
+                </div>
+                <div class="naverApiMap-mappingMarker--mainZone">
+                    <div class="naverApiMap-mappingMarker--titleZone">
+                        <span>
+                        이름
+                        </span>
+                    </div>
+                    <div class="naverApiMap-mappingMarker--phoneNumberZone">
+                        <span>
+                        전번
+                        </span>
+                    </div>
+                </div>
+            </div>`,
+            size: N.Size(20, 20),
+            anchor: N.Point(0, 30)
+        };
+        var test = {markers:[], resultMarkers:[]};
+
+    </script>
+
+    <script>
+        //실행과 동시에 클러스터링 객체 생성
+        let markerClustering;
+        test.show=function (){
+            for (var i = 0, ii = test.markers[0].length; i < ii; i++) {
+                test.resultMarkers.push(test.markers[0][i]);
+            }
+
+            markerClustering = new MarkerClustering({
+                minClusterSize: 2,
+                maxZoom: 18,
+                map: test.map,//mapsetting.FMIndexMap,
+                markers: test.resultMarkers,
+                disableClickZoom: true,
+                gridSize: 150,
+                icons: [htmlMarker1],
+                indexGenerator: [1000],
+                averageCenter: true,
+                stylingFunction: function() {
+                    // 확대축소에 따른 매번 작동
+                }
+            });
+        }
+        test.unshow=function(){
+            // markerClustering._clearClusters()
+            test.markers[0]=[];
+            test.resultMarkers=[];
+            // for (var i = 0, ii = test.resultMarkers[0].length; i < ii; i++) {
+            //     test.markers.pop(test.markers[i]);
+            //     test.resultMarkers.pop(test.markers[0][i]);
+            // }
+        }
+    </script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

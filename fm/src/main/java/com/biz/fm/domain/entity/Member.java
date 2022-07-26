@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.biz.fm.domain.dto.MemberDto.MemberResponse;
@@ -32,6 +33,7 @@ public class Member implements UserDetails{
 	private String password;
 	private String phoneNumber;
 	private Date birth;
+	private String role;	//권한 추가
 	private Address address;
 	private Timestamp createDate;
 	private Timestamp deleteDate;
@@ -56,9 +58,12 @@ public class Member implements UserDetails{
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		List<GrantedAuthority> list = new ArrayList<>();
-//		list.add(new SimpleGrantedAuthority(this.role));
-		return list;
+		List<GrantedAuthority> authorities  = new ArrayList<>();
+		
+		for(String role : role.split(",")){
+            authorities.add(new SimpleGrantedAuthority(role));
+        }
+        return authorities;
 	}
 
 	@Override

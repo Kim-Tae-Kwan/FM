@@ -31,6 +31,7 @@ public interface MemberRepository {
 			@Result(property = "password", column = "password"),
 			@Result(property = "phoneNumber", column = "phone_number"),
 			@Result(property = "birth", column = "birth"),
+			@Result(property = "role", column = "role"),
 			@Result(property = "createDate", column = "create_date"),
 			@Result(property = "deleteDate", column = "delete_date"),
 			@Result(property = "address", column = "address_id", one = @One(resultMap = "com.biz.fm.repository.AddressRepository.AddressEntityMap"))
@@ -38,7 +39,6 @@ public interface MemberRepository {
 	public Member findById(String Id);
 	
 	@Select("SELECT * FROM member m JOIN address a ON m.address_id = a.id WHERE email = #{email} AND delete_date is null")
-//	@ResultMap("MemberEntityMap")
 	public Member findByEmail(String email);
 	
 	@Select("SELECT * FROM member WHERE email = #{email}")
@@ -49,15 +49,18 @@ public interface MemberRepository {
 	public Member findByPassword(String password);
 
 	@Insert("INSERT INTO member VALUES "
-			+ "(#{id}, #{name}, #{email}, #{password}, #{phoneNumber}, #{birth}, #{addressId}, now(), null)")
+			+ "(#{id}, #{name}, #{email}, #{password}, #{phoneNumber}, #{birth}, #{role}, #{addressId}, now(), null)")
 	public int insert(MemberUp member);
 	
 	@Update("UPDATE member SET phone_number = #{member.phoneNumber} "
 			+ "WHERE id = #{id}")
 	public int update(@Param("id") String id, @Param("member") MemberUpdate member);
 	
-	@Update("UPDATE member SET password = #{password} WHERE email = #{email}")
-	public int updatePassword(UpdatePassword updatePasswordCaseOfLoss);
+	@Update("UPDATE member SET password = #{password} WHERE id = #{id}")
+	public int updatePassword(String id, String password);
+	
+	@Update("UPDATE member SET role = #{role} WHERE id = #{id}")
+	public int updateRole(String id, String role);
 
 	@Update("UPDATE member SET delete_Date = now() WHERE id = #{id}")
 	public int delete(String id);

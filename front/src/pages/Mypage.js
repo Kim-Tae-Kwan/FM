@@ -26,30 +26,42 @@ function UpdateUserInfo(
     setIsEdit,
     userInfoAddress,
     setUserInfo,
+    editText,
     setUserInfoAddress
 ) {
     setIsEdit(!isEdit);
+    const phonRegx = /^(010)?([0-9]{4})?([0-9]{4})$/;
     if (isEdit === true) {
-        axios({
-            method: "put",
-            url: `http://192.168.240.250:8080/api/v1/member/` + userId,
-            headers:{
-                Authorization : localStorage.getItem('accessToken')
-            },
-            data: {
-                address: {
-                    detail: userInfoAddress.detail,
-                    jibun: userInfoAddress.jibun,
-                    postalCode: userInfoAddress.postalCode,
-                    road: userInfoAddress.road,
+        if (
+            userInfoAddress &&
+            userInfo.phoneNumber.length === 11 &&
+            phonRegx.test(userInfo.phoneNumber)
+        ) {
+            axios({
+                method: "put",
+                url: `http://192.168.240.250:8080/api/v1/member/` + userId,
+                headers: {
+                    Authorization: localStorage.getItem("accessToken"),
                 },
-                phoneNumber: userInfo.phoneNumber
-            },
-        }).then(function (res) {
-            console.log("유저 정보 변경 성공");
-            console.log(userInfo)
-            setUserInfo(res.data);
-        });
+                data: {
+                    address: {
+                        detail: userInfoAddress.detail,
+                        jibun: userInfoAddress.jibun,
+                        postalCode: userInfoAddress.postalCode,
+                        road: userInfoAddress.road,
+                    },
+                    phoneNumber: userInfo.phoneNumber,
+                },
+            }).then(function (res) {
+                console.log("유저 정보 변경 성공");
+                console.log(userInfo);
+                setUserInfo(res.data);
+            });
+        } else {
+            alert("유저 정보를 수정하는데 실패 하였습니다.");
+            setUserInfo({ ...userInfo, phoneNumber: editText });
+            setIsEdit(true);
+        }
     }
 }
 
@@ -59,7 +71,7 @@ function MypageForm() {
 
     //유저 정보 변경 디폴트 셋팅
     const [editText, setEditText] = useState({
-        phoneNum: "",
+        phoneNumber: "",
     });
     const [isEdit, setIsEdit] = useState(false);
 
@@ -69,7 +81,15 @@ function MypageForm() {
     };
 
     const [list, setList] = useState([]);
-    const [userInfo, setUserInfo] = useState("");
+    const [userInfo, setUserInfo] = useState({
+        phoneNumber: "",
+        address: {
+            detail: "",
+            jibun: "",
+            postalCode: "",
+            road: "",
+        },
+    });
     const [userInfoAddress, setUserInfoAddress] = useState({
         detail: "",
         jibun: "",
@@ -80,17 +100,20 @@ function MypageForm() {
     const [data, setData] = useState({});
 
     let userId = localStorage.getItem("userId");
-    let userName = localStorage.getItem("userName");
-    let userEmail = localStorage.getItem("email");
 
     //유저 정보 받아오는 통신
     useEffect(() => {
         axios({
             method: "get",
-            url: `http://192.168.240.250:8080/api/v1/member/` + userId,
+            url:
+                `http://192.168.240.250:8080/api/v1/member/` +
+                localStorage.getItem("userId"),
         }).then(function (res) {
             setUserInfo(res.data);
             setUserInfoAddress(res.data.address);
+            setEditText(res.data.phoneNumber);
+            // console.log(res.data.phoneNumber)
+            // setUserphonNum(res.data.phoneNumber)
         });
     }, []);
 
@@ -100,11 +123,11 @@ function MypageForm() {
             method: "get",
             url:
                 `http://192.168.240.250:8080/api/v1/member/` +
-                userId +
+                localStorage.getItem("userId") +
                 `/franchisee`,
         }).then(function (res) {
             // console.log(res);
-            setList(res.data)
+            setList(res.data);
             //   console.log("리스트 갱신에 따른 반복실행 확인");
         });
     }, []);
@@ -120,17 +143,19 @@ function MypageForm() {
     const handleComplete = (data) => {
         if (data.userSelectedType === "R") {
             // 사용자가 도로명 주소를 선택했을 경우
-            document.getElementById("postcode--Address").value = data.roadAddress;
-            document.getElementById("postcode--addressNumber").value = data.zonecode;
-            
-            if (data.autoJibunAddress == "") {
+            document.getElementById("postcode--Address").value =
+                data.roadAddress;
+            document.getElementById("postcode--addressNumber").value =
+                data.zonecode;
+
+            if (data.autoJibunAddress === "") {
                 setUserInfoAddress({
                     detail: userInfo.address.detail,
                     jibun: data.jibunAddress,
                     postalCode: data.zonecode,
                     road: data.address,
                 });
-            }else{
+            } else {
                 setUserInfoAddress({
                     detail: userInfo.address.detail,
                     jibun: data.autoJibunAddress,
@@ -140,7 +165,8 @@ function MypageForm() {
             }
         } else {
             // 사용자가 지번 주소를 선택했을 경우(J)
-            document.getElementById("postcode--Address").value = data.jibunAddress;
+            document.getElementById("postcode--Address").value =
+                data.jibunAddress;
             setUserInfoAddress({
                 detail: userInfo.address.detail,
                 jibun: data.jibunAddress,
@@ -154,20 +180,35 @@ function MypageForm() {
         if (isEdit === false) e.preventDefault();
         else open({ onComplete: handleComplete });
     };
+
     const [deleteModalshow, setDeleteModalshow] = useState(false);
+    let delChk = false;
     const deleteModalClose = () => {
-        setDeleteModalshow(false)
-    }
+        setDeleteModalshow(false);
+    };
+    const delchkmsg = (e) => {
+        let msg = "회원탈퇴";
+        if (msg === e.target.value) {
+            delChk = true;
+        }
+        console.log(delChk);
+        console.log(e.target.value);
+    };
     const deleteMember = () => {
-        console.log('삭제')
-        // axios.delete('http://192.168.240.250:/8080/api/v1/member/'+userId,)
-    } 
+        console.log("삭제");
+        if (delChk && deleteModalshow) {
+            axios.delete(
+                "http://192.168.240.250:/8080/api/v1/member/" + userId
+            );
+        }
+    };
     return (
         <modalControllerContext.Provider
             value={{
                 showAddFrenModal,
                 setAddFrenModalShow,
-                setList, list
+                setList,
+                list,
             }}
         >
             <Container className="Mypage--Container">
@@ -175,20 +216,31 @@ function MypageForm() {
                     <div className="row mb-3 userinfozone">
                         <div className="col-sm-4 userinfozone--headerzone">
                             <div className="card userinfozone--usertitle">
-                                <div className="card-body" style={{marginTop:'18%'}}>
+                                <div
+                                    className="card-body"
+                                    style={{ marginTop: "18%" }}
+                                >
                                     <div className="d-flex flex-column align-items-center text-center mb-2">
                                         <img
+                                            alt="유저이미지"
                                             src="./img/userMarker.png"
                                             className="rounded-circle"
                                             width="150"
                                         />
                                         <div className="mb-3">
-                                            <h4>{userName}</h4>
+                                            <h4>
+                                                {localStorage.getItem(
+                                                    "userName"
+                                                )}
+                                            </h4>
                                         </div>
-                                        <div className="row" style={{textAlign:"center"}}>
+                                        <div
+                                            className="row"
+                                            style={{ textAlign: "center" }}
+                                        >
                                             <button
                                                 className="col-sm-4 btn btn-info"
-                                                style={{color:"white"}}
+                                                style={{ color: "white" }}
                                                 onClick={() => {
                                                     UpdateUserInfo(
                                                         userId,
@@ -215,23 +267,13 @@ function MypageForm() {
                                             </button>
                                             <Button
                                                 variant="danger"
-                                                onClick={()=>{setDeleteModalshow(true)}}
+                                                onClick={() => {
+                                                    setDeleteModalshow(true);
+                                                }}
                                                 className="col-sm-4"
-                                            >회원탈퇴</Button>
-                                            <Modal show={deleteModalshow} onHide={deleteModalClose}>
-                                                <Modal.Header closeButton>
-                                                    <Modal.Title>Delete Member</Modal.Title>
-                                                </Modal.Header>
-                                                <Modal.Body>회원 탈퇴를 진행하시겠습니까?</Modal.Body>
-                                                <Modal.Footer>
-                                                    <Button variant="danger" onClick={deleteMember}>
-                                                        탈퇴
-                                                    </Button>
-                                                    <Button variant="secondary" onClick={deleteModalClose}>
-                                                        취소
-                                                    </Button>
-                                                </Modal.Footer>
-                                            </Modal>
+                                            >
+                                                회원탈퇴
+                                            </Button>
                                         </div>
                                     </div>
                                 </div>
@@ -242,107 +284,143 @@ function MypageForm() {
                                 <div className="card-body">
                                     <div className="row">
                                         <div className="col-sm-2">
-                                            <h6>이메일</h6>
+                                            <h6 className="emailLabel">
+                                                이메일
+                                            </h6>
                                         </div>
                                         <div className="col-sm-10 text-secondary">
-                                            {userEmail}
+                                            {localStorage.getItem("email")}
                                         </div>
                                     </div>
                                     <hr />
                                     <div className="row">
                                         <div className="col-sm-2">
-                                            <h6>전화번호</h6>
+                                            <h6 className="phonNumLabel">
+                                                전화번호
+                                            </h6>
                                         </div>
                                         <div className="col-sm-10 text-secondary">
                                             {isEdit ? (
                                                 <input
                                                     name="phoneNum"
-                                                    placeholder={userInfo.phoneNumber}
-                                                    style={{background:'#d2f2fa'}}
-                                                    onChange={(e) =>{
-                                                        setUserInfo(
-                                                            {...userInfo,
-                                                            phoneNumber : e.target.value}
-                                                            )
-                                                        
+                                                    defaultValue={
+                                                        userInfo.phoneNumber
                                                     }
-                                                }
+                                                    style={{
+                                                        background: "#d2f2fa",
+                                                    }}
+                                                    onChange={(e) => {
+                                                        setEditText(
+                                                            ...editText,
+                                                            {
+                                                                phoneNumber:
+                                                                    e.target
+                                                                        .value,
+                                                            }
+                                                        );
+                                                        setUserInfo({
+                                                            ...userInfo,
+                                                            phoneNumber:
+                                                                e.target.value,
+                                                        });
+                                                    }}
                                                 />
                                             ) : (
-                                                <>{userInfo.phoneNumber}</>
+                                                <>
+                                                    {userInfo.phoneNumber.replace(
+                                                        /^(\d{2,3})(\d{3,4})(\d{4})$/,
+                                                        `$1-$2-$3`
+                                                    )}
+                                                </>
                                             )}
                                         </div>
                                     </div>
                                     <hr />
-                                    {!isEdit && <div className="row">
-                                        <div className="col-sm-2">
-                                            <h6>주소</h6>
+                                    {!isEdit && (
+                                        <div className="row">
+                                            <div className="col-sm-2">
+                                                <h6>주소</h6>
+                                            </div>
+                                            <div className="col-sm-10 text-secondary">
+                                                {userInfo.address.road +
+                                                    " " +
+                                                    userInfo.address.detail}
+                                            </div>
                                         </div>
-                                        <div className="col-sm-10 text-secondary">
-                                            {userInfoAddress.road + ' ' + userInfoAddress.detail}
-                                        </div>
-                                    </div>}
-                                    {isEdit &&
-                                    <div className="row" style={{height:"200px"}}>
-                                        <Form.Group className="mb-3">
-                                            <Form.Label>주소</Form.Label>
-                                            <InputGroup style={{ width: "300px" }}>
+                                    )}
+                                    {isEdit && (
+                                        <div
+                                            className="row"
+                                            style={{ height: "200px" }}
+                                        >
+                                            <Form.Group className="mb-3">
+                                                <Form.Label>주소</Form.Label>
+                                                <InputGroup
+                                                    style={{ width: "300px" }}
+                                                >
+                                                    <Form.Control
+                                                        id="postcode--addressNumber"
+                                                        type="text"
+                                                        placeholder="우편번호"
+                                                        readOnly={readOnly}
+                                                        defaultValue={
+                                                            userInfoAddress.postalCode
+                                                        }
+                                                    />
+                                                    <Button
+                                                        onClick={handleClick}
+                                                        style={{
+                                                            zIndex: "0",
+                                                            background:
+                                                                "#d2f2fa",
+                                                            color: "#0A0A0AB3",
+                                                            border: "1px solid gray",
+                                                        }}
+                                                    >
+                                                        우편번호 검색
+                                                    </Button>
+                                                </InputGroup>
                                                 <Form.Control
-                                                    id="postcode--addressNumber"
+                                                    className="mb-3"
                                                     type="text"
-                                                    placeholder="우편번호"
+                                                    id="postcode--Address"
                                                     readOnly={readOnly}
                                                     defaultValue={
-                                                        userInfoAddress.postalCode 
+                                                        userInfoAddress.road
                                                     }
-                                                />
-                                                <Button
-                                                    onClick={handleClick}
-                                                    style={{ zIndex: "0" ,background:'#d2f2fa',color:'#0A0A0AB3',border:'1px solid gray'}}
-                                                >
-                                                    우편번호 검색
-                                                </Button>
-                                            </InputGroup>
-                                            <Form.Control
-                                                className="mb-3"
-                                                type="text"
-                                                id="postcode--Address"
-                                                readOnly={readOnly}
-                                                defaultValue={userInfoAddress.road}
-                                                placeholder="주소"
-                                            ></Form.Control>
-                                            <Form.Control
-                                                className="mb-3"
-                                                type="text"
-                                                name="detail"
-                                                readOnly={readOnly}
-                                                defaultValue={userInfoAddress.detail}
-                                                onChange={(e) =>{
+                                                    placeholder="주소"
+                                                ></Form.Control>
+                                                <Form.Control
+                                                    className="mb-3"
+                                                    type="text"
+                                                    name="detail"
+                                                    readOnly={readOnly}
+                                                    defaultValue={
+                                                        userInfoAddress.detail
+                                                    }
+                                                    onChange={(e) => {
                                                         setUserInfoAddress({
                                                             ...userInfoAddress,
                                                             [e.target.name]:
                                                                 e.target.value,
-                                                        })
-                                                    }
-                                                }
-                                                placeholder="상세주소"
-                                            ></Form.Control>
-                                        </Form.Group>
-                                    </div>
-                                    }
+                                                        });
+                                                    }}
+                                                    placeholder="상세주소"
+                                                ></Form.Control>
+                                            </Form.Group>
+                                        </div>
+                                    )}
                                     <hr />
                                     <div className="row">
                                         <div className="col-sm-2">
                                             <h6>생년월일</h6>
                                         </div>
                                         <div className="col-sm-10 text-secondary">
-                                            {/* <DatePickerForm /> */}
                                             {userInfo.createDate}
                                         </div>
                                     </div>
                                     <hr />
                                 </div>
-                                
                             </div>
                         </div>
                     </div>
@@ -375,7 +453,7 @@ function MypageForm() {
                                     >
                                         <Col md={3}>사업자 번호</Col>
                                         <Col md={3}>가맹점 이름</Col>
-                                        <Col md={5}>value</Col>
+                                        <Col md={5}>전화번호</Col>
                                         <Col md={1}></Col>
                                     </Row>
                                     <ListGroup
@@ -400,21 +478,16 @@ function MypageForm() {
                                                         <Col md={5}>
                                                             {list[idx].tel}
                                                         </Col>
-                                                        <Col md={1}>
-                                                            {
-                                                                <button
-                                                                    onClick={() => {
-                                                                        setShow(
-                                                                            true
-                                                                        );
-                                                                        setData(
-                                                                            ele
-                                                                        );
-                                                                    }}
-                                                                >
-                                                                    삭제
-                                                                </button>
-                                                            }
+                                                        <Col
+                                                            md={1}
+                                                            role="button"
+                                                            className="delFranbtn btn btn-danger"
+                                                            onClick={() => {
+                                                                setShow(true);
+                                                                setData(ele);
+                                                            }}
+                                                        >
+                                                            삭제
                                                         </Col>
                                                     </Row>
                                                 </ListGroup.Item>
@@ -436,6 +509,29 @@ function MypageForm() {
                     />
                 ) : null}
                 <AddFranchiseeModal />
+                <Modal show={deleteModalshow} onHide={deleteModalClose}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Delete Member</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <p>
+                            회원 탈퇴를 원하시면 '회원탈퇴' 를 입력하여 주십시오
+                        </p>
+                        <Form.Control
+                            type="text"
+                            placeholder="회원탈퇴"
+                            onChange={delchkmsg}
+                        ></Form.Control>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="danger" onClick={deleteMember}>
+                            탈퇴
+                        </Button>
+                        <Button variant="secondary" onClick={deleteModalClose}>
+                            취소
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
             </Container>
         </modalControllerContext.Provider>
     );

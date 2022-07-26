@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Container, Accordion } from "react-bootstrap";
 import Header from "../template/Header";
 import Footer from "../template/Footer";
@@ -8,14 +8,13 @@ import axios from "axios";
 
 function BusinessListAccordian() {
     const [franList, setFranList] = useState("");
-    let userId = localStorage.getItem("userId");
 
     useEffect(() => {
         axios({
             method: "get",
             url:
                 `http://192.168.240.250:8080/api/v1/member/` +
-                userId +
+                localStorage.getItem("userId") +
                 `/franchisee`,
         }).then(function (res) {
             setFranList(res.data);
@@ -23,8 +22,15 @@ function BusinessListAccordian() {
     }, []);
     return (
         <>
-            <Container className="businessList-Container" style={{position:'relative',minHeight:'100%',height:'auto'}}>
-                <Accordion defaultActiveKey="0">
+            <Container
+                className="businessList-Container"
+                style={{
+                    position: "relative",
+                    minHeight: "100%",
+                    height: "auto",
+                }}
+            >
+                <Accordion defaultActiveKey={Number(0)}>
                     {Array.from({ length: franList.length }).map((_, idx) => (
                         <Accordion.Item eventKey={idx} key={idx}>
                             <Accordion.Header>

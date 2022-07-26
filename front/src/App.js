@@ -5,6 +5,7 @@ import Mypage from "./pages/Mypage";
 import BusinessList from "./pages/BusinessList";
 import PrivateRoute from "./lib/PrivateRoute";
 import axios from "axios";
+import ApiDocument from "./pages/ApiDocument";
 
 function App() {
   axios.defaults.headers.common['Authorization'] = localStorage.getItem('accessToken')
@@ -20,6 +21,10 @@ function App() {
         <Route // 관리자 메인페이지
           path="/businessList"
           element={<PrivateRoute component={<BusinessList />} />}
+        />
+        <Route // API 문서 페이지
+          path="/apiDocs"
+          element={<PrivateRoute component={<ApiDocument />} />}
         />
       </Routes>
     </BrowserRouter>

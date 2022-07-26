@@ -85,3 +85,48 @@ hr{
     height: 40px;
     line-height: 40px;
 }
+
+.delFranbtn{
+    margin:0px;
+    text-align: center;
+    padding: 0px;
+    height: 30px;
+    line-height: 25px;
+}
+.delFranbtn.btn.btn-danger{
+    width: 40px;
+}
+
+@media (max-width: 1400px) {
+    .delFranbtn{
+        width: 60px;
+    }
+    .emailLabel {
+        width: 60px;
+    }
+    .phonNumLabel{
+        width: 60px;
+    }
+  }
+
+@media (max-width: 991px) {
+    .delFranbtn{
+        width: 60px;
+        margin-right: 0px;
+        padding-left: 0px;
+    }
+    .emailLabel {
+        width: 60px;
+    }
+    .phonNumLabel{
+        width: 60px;
+    }
+  }
+  @media (max-width: 768px) {
+    .emailLabel {
+        width: 30px;
+    }
+    .phonNumLabel{
+        width: 60px;
+    }
+  }

@@ -1,23 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, createContext, useContext } from "react";
 import "bootstrap/dist/css/bootstrap.css";
 import axios from "axios";
-import SearchDetail from '../template/SearchDetail';
+import SearchDetail from "../template/SearchDetail";
 
 const { naver } = window;
 
-// function getPlacesDetail(title, {detailTogFun}){
-//     axios({
-//         method: "get",
-//         url:
-//             `http://192.168.240.250:8080/api/v1/franchisee/`+title
-//     }).then(function (res) {
-//         console.log(res.data);
-//     });
-//     detailTogFun();
-
-// }
-
-function NaverAPIMap({detailTogFun}) {
+function NaverAPIMap({ detailTogFun }) {
     let FMIndexMap;
     let cLat, cLng;
 
@@ -91,10 +79,9 @@ function NaverAPIMap({detailTogFun}) {
     //작성
     let defaultArroundMarkerList = [];
     let movedArroundMarkerList = [];
-    let defaultArroundPlacesMarker=new naver.maps.Marker;
-    let movedArroundPlacesMarkerList=[];
-    let movedCenterMarker = new naver.maps.Marker;
-    let movedCenterCircle=new naver.maps.Circle;
+    let movedArroundPlacesMarkerList = [];
+    let movedCenterMarker = new naver.maps.Marker();
+    let movedCenterCircle = new naver.maps.Circle();
 
     useEffect(() => {
         //위치권한 허용
@@ -153,22 +140,30 @@ function NaverAPIMap({detailTogFun}) {
                                 ].join(""),
                                 anchor: new naver.maps.Point(25, 60),
                             },
-                            title: defaultArroundMarkerList[idx].businessNumber
+                            title: defaultArroundMarkerList[idx].businessNumber,
                         });
 
                         //디폴트 마커(기본 200미터 내의 장소 마커) 클릭 이벤트
-                        naver.maps.Event.addListener(defaultArroundMarkerList[idx], "click", function(e){
-                            console.log('디폴트 마커 클릭됨');
-                            detailTogFun(e.overlay.title);
-                        })
+                        naver.maps.Event.addListener(
+                            defaultArroundMarkerList[idx],
+                            "click",
+                            function (e) {
+                                console.log("디폴트 마커 클릭됨");
+                                detailTogFun(e.overlay.title);
+                            }
+                        );
                     }
+                    test.markers.push(defaultArroundMarkerList);
+
+                    test.show();
                 });
 
                 //지도 센터 설정 및 축적도 수준 설정
                 FMIndexMap = new naver.maps.Map("FMIndexMapDom", {
                     center: new naver.maps.LatLng(cLat, cLng),
-                    zoom : 18
+                    zoom: 18,
                 });
+                test.map = FMIndexMap;
 
                 //현재위치 마커 출력
                 let currentMarker = new naver.maps.Marker({
@@ -225,16 +220,29 @@ function NaverAPIMap({detailTogFun}) {
                         BtnArea.getElement(),
                         "click",
                         function (e) {
+                            // test.unshow();
                             //디폴트 마커 숨기기
-                            if(defaultArroundMarkerList.length>0){
-                                for(var i=0; i<defaultArroundMarkerList.length; i++){
-                                    defaultArroundMarkerList[i].setVisible(false);
+                            if (defaultArroundMarkerList.length > 0) {
+                                for (
+                                    var i = 0;
+                                    i < defaultArroundMarkerList.length;
+                                    i++
+                                ) {
+                                    defaultArroundMarkerList[i].setVisible(
+                                        false
+                                    );
                                 }
                             }
                             //이동으로 인한 새롭게 파싱된 마커 숨기기
-                            if(movedArroundPlacesMarkerList.length>0){
-                                for(var idx=0; idx<movedArroundPlacesMarkerList.length; idx++){
-                                    movedArroundPlacesMarkerList[idx].setVisible(false);
+                            if (movedArroundPlacesMarkerList.length > 0) {
+                                for (
+                                    var idx = 0;
+                                    idx < movedArroundPlacesMarkerList.length;
+                                    idx++
+                                ) {
+                                    movedArroundPlacesMarkerList[
+                                        idx
+                                    ].setVisible(false);
                                 }
                             }
                             movedCenterMarker.setVisible(false);
@@ -250,83 +258,118 @@ function NaverAPIMap({detailTogFun}) {
                                     `&longitude=` +
                                     FMIndexMap.getCenter()._lng +
                                     `&radius=200`,
-                            }).then(function (res) {
-                                movedArroundMarkerList=[];
-                                for (var idx = 0; idx < res.data.length; idx++) {
-                                    movedArroundMarkerList.push(res.data[idx]);
-                                    // 이동 후 파싱장소 콘솔
-                                    // console.log(movedArroundMarkerList);
-                                }
-                                defaultArroundMarkerList=[];
-                                console.log("이동 후 주변장소 파싱성공");
+                            })
+                                .then(function (res) {
+                                    movedArroundMarkerList = [];
+                                    for (
+                                        var idx = 0;
+                                        idx < res.data.length;
+                                        idx++
+                                    ) {
+                                        movedArroundMarkerList.push(
+                                            res.data[idx]
+                                        );
+                                        // 이동 후 파싱장소 콘솔
+                                        // console.log(movedArroundMarkerList);
+                                    }
+                                    defaultArroundMarkerList = [];
+                                    console.log("이동 후 주변장소 파싱성공");
 
+                                    //
+                                    movedArroundPlacesMarkerList = [];
+                                    for (
+                                        var idx = 0;
+                                        idx < movedArroundMarkerList.length;
+                                        idx++
+                                    ) {
+                                        movedArroundPlacesMarkerList[idx] =
+                                            new naver.maps.Marker({
+                                                position: new naver.maps.LatLng(
+                                                    movedArroundMarkerList[
+                                                        idx
+                                                    ].y,
+                                                    movedArroundMarkerList[
+                                                        idx
+                                                    ].x
+                                                ),
+                                                map: FMIndexMap,
+                                                icon: {
+                                                    content: [
+                                                        '<div class="naverApiMap-mappingMarker">',
+                                                        '<div class="naverApiMap-mappingMarker--imageZone">',
+                                                        '<img src="./img/cafeImg.png">',
+                                                        "</div>",
+                                                        '<div class="naverApiMap-mappingMarker--mainZone">',
+                                                        '<div class="naverApiMap-mappingMarker--titleZone">',
+                                                        "<span>",
+                                                        movedArroundMarkerList[
+                                                            idx
+                                                        ].name,
+                                                        "</span>",
+                                                        "</div>",
+                                                        '<div class="naverApiMap-mappingMarker--phoneNumberZone">',
+                                                        "<span>",
+                                                        movedArroundMarkerList[
+                                                            idx
+                                                        ].tel,
+                                                        "</span>",
+                                                        "</div>",
+                                                        "</div>",
+                                                        "</div>",
+                                                    ].join(""),
+                                                    anchor: new naver.maps.Point(
+                                                        25,
+                                                        60
+                                                    ),
+                                                },
+                                                title: movedArroundMarkerList[
+                                                    idx
+                                                ].businessNumber,
+                                            });
 
-                                //
-                                movedArroundPlacesMarkerList=[];
-                                for (
-                                    var idx = 0;
-                                    idx < movedArroundMarkerList.length;
-                                    idx++
-                                ) {
-                                    movedArroundPlacesMarkerList[idx] = new naver.maps.Marker({
-                                        position: new naver.maps.LatLng(
-                                            movedArroundMarkerList[idx].y,
-                                            movedArroundMarkerList[idx].x
-                                        ),
-                                        map: FMIndexMap,
-                                        icon: {
-                                            content: [
-                                                '<div class="naverApiMap-mappingMarker">',
-                                                '<div class="naverApiMap-mappingMarker--imageZone">',
-                                                '<img src="./img/cafeImg.png">',
-                                                "</div>",
-                                                '<div class="naverApiMap-mappingMarker--mainZone">',
-                                                '<div class="naverApiMap-mappingMarker--titleZone">',
-                                                "<span>",
-                                                movedArroundMarkerList[idx].name,
-                                                "</span>",
-                                                "</div>",
-                                                '<div class="naverApiMap-mappingMarker--phoneNumberZone">',
-                                                "<span>",
-                                                movedArroundMarkerList[idx].tel,
-                                                "</span>",
-                                                "</div>",
-                                                "</div>",
-                                                "</div>",
-                                            ].join(""),
-                                            anchor: new naver.maps.Point(25, 60),
-                                        },
-                                        title: movedArroundMarkerList[idx].businessNumber
-                                    });
+                                        //이동 후 파싱된 마커에 대한 클릭 이벤트
+                                        naver.maps.Event.addListener(
+                                            movedArroundPlacesMarkerList[idx],
+                                            "click",
+                                            function (e) {
+                                                console.log(
+                                                    "이동된 마커 클릭됨"
+                                                );
+                                                detailTogFun(e.overlay.title);
+                                            }
+                                        );
+                                    }
 
-                                    //이동 후 파싱된 마커에 대한 클릭 이벤트
-                                    naver.maps.Event.addListener(movedArroundPlacesMarkerList[idx], "click", function(e){
-                                        console.log('이동된 마커 클릭됨');
-                                        detailTogFun(e.overlay.title);
-                                    })
-                                }
-                                
-                            //파싱하는 범위 내에 등록된 장소가 없을 때
-                            }).catch(function (error) {
-                                if(error.response.status===404){
-                                    console.log('등록된 장소가 없습니다');
-                                    movedArroundMarkerList=[];
-                                }
-                            });
+                                    test.markers.push(
+                                        movedArroundPlacesMarkerList
+                                    );
+
+                                    test.show();
+
+                                    //파싱하는 범위 내에 등록된 장소가 없을 때
+                                })
+                                .catch(function (error) {
+                                    if (error.response.status === 404) {
+                                        console.log("등록된 장소가 없습니다");
+                                        movedArroundMarkerList = [];
+                                    }
+                                });
 
                             // 이동에 따른 반지름 200 의 원
-                            movedCenterCircle=new naver.maps.Circle({
-                                map : FMIndexMap,
-                                center : new naver.maps.LatLng(FMIndexMap.getCenter()._lat, FMIndexMap.getCenter()._lng),
-                                radius : 200,
+                            movedCenterCircle = new naver.maps.Circle({
+                                map: FMIndexMap,
+                                center: new naver.maps.LatLng(
+                                    FMIndexMap.getCenter()._lat,
+                                    FMIndexMap.getCenter()._lng
+                                ),
+                                radius: 200,
 
-                                strokeColor: '#56d8f5',
+                                strokeColor: "#56d8f5",
                                 strokeOpacity: 0.1,
                                 strokeWeight: 2,
-                                fillColor: '#d2f2fa',
-                                fillOpacity: 0.3
-                            })
-
+                                fillColor: "#d2f2fa",
+                                fillOpacity: 0.3,
+                            });
                         }
                     );
                 });
@@ -388,19 +431,17 @@ function NaverAPIMap({detailTogFun}) {
 
                 //마우스 다운 이벤트 - 지도 드래그시 지도에 존재하는 클릭마커 숨기기 //나중을 위해 냅두기
                 naver.maps.Event.addListener(FMIndexMap, "mousedown", (e) => {
-                    console.log('마우스 다운');
+                    // console.log('마우스 다운');
                     for (var i = 0, ii = markerList.length; i < ii; i++) {
                         markerList[i].setMap(null);
                     }
 
                     markerList = [];
-                    
                 });
 
                 //마우스 업 이벤트 //나중을 위해 냅두기
-                naver.maps.Event.addListener(FMIndexMap, "mouseup", (e) =>{
-                    console.log('마우스 업');
-
+                naver.maps.Event.addListener(FMIndexMap, "mouseup", (e) => {
+                    // console.log('마우스 업');
                     // 이동에 따른 센터 마커 생성 코드
                     // movedCenterMarker = new naver.maps.Marker({
                     //     position: new naver.maps.LatLng(FMIndexMap.getCenter()._lat, FMIndexMap.getCenter()._lng),
@@ -412,13 +453,13 @@ function NaverAPIMap({detailTogFun}) {
                     //         anchor: new naver.maps.Point(25, 26),
                     //     },
                     // });
-                })
+                });
             });
         } else {
             // 위치권한 허용 x
         }
     }, []);
-
+    console.log(test.map);
     return (
         <>
             <div id="FMIndexMapDom" className="FMIndexMapDom"></div>
@@ -427,4 +468,3 @@ function NaverAPIMap({detailTogFun}) {
 }
 
 export default NaverAPIMap;
-

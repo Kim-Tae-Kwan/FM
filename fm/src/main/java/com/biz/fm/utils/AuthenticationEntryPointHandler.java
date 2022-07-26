@@ -32,7 +32,7 @@ public class AuthenticationEntryPointHandler implements AuthenticationEntryPoint
          * 토큰이 없는 경우 예외처리
          */
         if(exception == null) {
-            errorCode = ErrorCode.EXPIRED_JWT_EXCEPTION;
+            errorCode = ErrorCode.FORBIDDEN_EXCEPTION;
             setResponse(response, errorCode);
             return;
         }
@@ -51,6 +51,15 @@ public class AuthenticationEntryPointHandler implements AuthenticationEntryPoint
          */
         if(exception.equals("LogoutByBadToken")) {
             errorCode = ErrorCode.LOGOUT_BY_BAD_TOKEN;
+            setResponse(response, errorCode);
+            return;
+        }
+        
+        /**
+         * 권한이 없는 접근일 때 exception 처리
+         */
+        if(exception.equals("ForbiddenException")) {
+            errorCode = ErrorCode.FORBIDDEN_EXCEPTION;
             setResponse(response, errorCode);
             return;
         }

@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { InputGroup, Card } from "react-bootstrap";
 import RegisterModal from "./RegisterModal";
