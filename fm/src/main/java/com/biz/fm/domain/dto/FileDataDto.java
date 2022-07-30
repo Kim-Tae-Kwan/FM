@@ -27,7 +27,19 @@ public class FileDataDto {
 		
 		@JacksonXmlProperty(localName = "image")
 	    @JacksonXmlElementWrapper(useWrapping = false)
-		private List<FileDataResponse> images;
+		private List<FileDataOpenResponse> images;
+	}
+	
+	@Setter
+	@Getter
+	@Builder
+	public static class FileDataOpenResponse {
+		private String downloadUrl;
+		private String size;
+		private String name;
+		private String type;
+		@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+		private Timestamp createDate;
 	}
 	
 	@Setter

@@ -22,6 +22,9 @@ public interface FileDataRepository {
 	})
 	public FileData findById(String fileId);
 	
+	@Select("SELECT EXISTS(SELECT 1 FROM file_data WHERE id = #{fileDataId})")
+	public boolean checkFileIdExists(String fileDataId);
+	
 	@Insert("INSERT INTO file_data VALUES (#{id}, #{path}, #{size}, #{name}, #{type}, now(), null)")
 	public int insert(FileData fileData);
 }

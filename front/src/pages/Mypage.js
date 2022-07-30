@@ -12,22 +12,21 @@ import Header from "../template/Header";
 import Footer from "../template/Footer";
 import "../css/Mypage.css";
 import AddFranchiseeModal from "../template/AddFranchiseeModal";
-import axios from "axios";
 import Button from "react-bootstrap/Button";
 import DelFranModals from "./DelFranModals";
 import { useDaumPostcodePopup } from "react-daum-postcode";
+import { Link } from "react-router-dom";
+import { instance } from "../template/AxiosConfig/AxiosInterceptor";
 
 export const modalControllerContext = createContext();
 //유저 정보 업데이트 함수
 function UpdateUserInfo(
-    userId,
     isEdit,
     userInfo,
     setIsEdit,
     userInfoAddress,
     setUserInfo,
-    editText,
-    setUserInfoAddress
+    editText
 ) {
     setIsEdit(!isEdit);
     const phonRegx = /^(010)?([0-9]{4})?([0-9]{4})$/;
@@ -37,12 +36,9 @@ function UpdateUserInfo(
             userInfo.phoneNumber.length === 11 &&
             phonRegx.test(userInfo.phoneNumber)
         ) {
-            axios({
+            instance({
                 method: "put",
-                url: `http://192.168.240.250:8080/api/v1/member/` + userId,
-                headers: {
-                    Authorization: localStorage.getItem("accessToken"),
-                },
+                url: `/member/` + localStorage.getItem("userId"),
                 data: {
                     address: {
                         detail: userInfoAddress.detail,
@@ -52,13 +48,15 @@ function UpdateUserInfo(
                     },
                     phoneNumber: userInfo.phoneNumber,
                 },
-            }).then(function (res) {
-                console.log("유저 정보 변경 성공");
-                console.log(userInfo);
-                setUserInfo(res.data);
-            });
+            })
+                .then(function (res) {
+                    setUserInfo(res.data);
+                })
+                .catch(function (err) {
+                    alert(err.reponse.data.message);
+                });
         } else {
-            alert("유저 정보를 수정하는데 실패 하였습니다.");
+            alert("전화번호 또는 주소에 올바르지 않은 값이 들어가 있습니다.");
             setUserInfo({ ...userInfo, phoneNumber: editText });
             setIsEdit(true);
         }
@@ -69,7 +67,7 @@ function MypageForm() {
     //createContext()에 대한 넒길 정보 useState
     const [showAddFrenModal, setAddFrenModalShow] = useState(false);
 
-    //유저 정보 변경 디폴트 셋팅
+    //유저 정보 변경 디폴트 셋팅 및 통신 이전의 값 저장.
     const [editText, setEditText] = useState({
         phoneNumber: "",
     });
@@ -96,40 +94,47 @@ function MypageForm() {
         postalCode: "",
         road: "",
     });
-    const [readOnly, setReadOnly] = useState(true);
+    const [createDate, setCreatedate] = useState();
     const [data, setData] = useState({});
-
-    let userId = localStorage.getItem("userId");
 
     //유저 정보 받아오는 통신
     useEffect(() => {
-        axios({
+        instance({
             method: "get",
-            url:
-                `http://192.168.240.250:8080/api/v1/member/` +
-                localStorage.getItem("userId"),
+            url: `/member/` + localStorage.getItem("userId"),
         }).then(function (res) {
             setUserInfo(res.data);
             setUserInfoAddress(res.data.address);
             setEditText(res.data.phoneNumber);
-            // console.log(res.data.phoneNumber)
-            // setUserphonNum(res.data.phoneNumber)
+            setCreatedate(res.data.createDate.split(" ")[0]);
+        }).catch((err) => {
+            console.log("error")
+            console.log(err)
         });
     }, []);
 
-    //유저가 가진 가맹점 리스트 받아오는 통신
+    // .then(()=>{
+            
+    //     instance({
+    //         method: "get",
+    //         url: `/member/` + localStorage.getItem("userId") + `/franchisee`,
+    //     }).then(function (res) {
+    //         setList(res.data);
+    //         //   console.log("리스트 갱신에 따른 반복실행 확인");
+    //     })
+    // })
+
+
     useEffect(() => {
-        axios({
+        instance({
             method: "get",
-            url:
-                `http://192.168.240.250:8080/api/v1/member/` +
-                localStorage.getItem("userId") +
-                `/franchisee`,
+            url: `/member/` + localStorage.getItem("userId") + `/franchisee`,
         }).then(function (res) {
-            // console.log(res);
             setList(res.data);
             //   console.log("리스트 갱신에 따른 반복실행 확인");
-        });
+        }).catch((err)=>{
+            console.log(err)
+        })
     }, []);
 
     //모달 띄우기
@@ -191,15 +196,18 @@ function MypageForm() {
         if (msg === e.target.value) {
             delChk = true;
         }
-        console.log(delChk);
-        console.log(e.target.value);
+        // console.log(delChk);
+        // console.log(e.target.value);
     };
     const deleteMember = () => {
-        console.log("삭제");
         if (delChk && deleteModalshow) {
-            axios.delete(
-                "http://192.168.240.250:/8080/api/v1/member/" + userId
-            );
+            instance({
+                method: "delete",
+                url: "/member/" + localStorage.getItem("userId"),
+            }).then((res) => {
+                localStorage.clear();
+                window.location.href = "http://localhost:3000/";
+            });
         }
     };
     return (
@@ -211,6 +219,7 @@ function MypageForm() {
                 list,
             }}
         >
+            <Header></Header>
             <Container className="Mypage--Container">
                 <div className="main-body">
                     <div className="row mb-3 userinfozone">
@@ -243,7 +252,6 @@ function MypageForm() {
                                                 style={{ color: "white" }}
                                                 onClick={() => {
                                                     UpdateUserInfo(
-                                                        userId,
                                                         isEdit,
                                                         userInfo,
                                                         setIsEdit,
@@ -252,7 +260,6 @@ function MypageForm() {
                                                         setUserInfoAddress,
                                                         editText
                                                     );
-                                                    setReadOnly(!readOnly);
                                                 }}
                                             >
                                                 정보수정
@@ -303,6 +310,7 @@ function MypageForm() {
                                             {isEdit ? (
                                                 <input
                                                     name="phoneNum"
+                                                    type="Number"
                                                     defaultValue={
                                                         userInfo.phoneNumber
                                                     }
@@ -341,7 +349,7 @@ function MypageForm() {
                                             <div className="col-sm-2">
                                                 <h6>주소</h6>
                                             </div>
-                                            <div className="col-sm-10 text-secondary">
+                                            <div className="col-sm-10 text-secondary fullAddress">
                                                 {userInfo.address.road +
                                                     " " +
                                                     userInfo.address.detail}
@@ -362,7 +370,7 @@ function MypageForm() {
                                                         id="postcode--addressNumber"
                                                         type="text"
                                                         placeholder="우편번호"
-                                                        readOnly={readOnly}
+                                                        readOnly={true}
                                                         defaultValue={
                                                             userInfoAddress.postalCode
                                                         }
@@ -384,7 +392,7 @@ function MypageForm() {
                                                     className="mb-3"
                                                     type="text"
                                                     id="postcode--Address"
-                                                    readOnly={readOnly}
+                                                    readOnly={true}
                                                     defaultValue={
                                                         userInfoAddress.road
                                                     }
@@ -394,7 +402,6 @@ function MypageForm() {
                                                     className="mb-3"
                                                     type="text"
                                                     name="detail"
-                                                    readOnly={readOnly}
                                                     defaultValue={
                                                         userInfoAddress.detail
                                                     }
@@ -416,7 +423,7 @@ function MypageForm() {
                                             <h6>생년월일</h6>
                                         </div>
                                         <div className="col-sm-10 text-secondary">
-                                            {userInfo.createDate}
+                                            {createDate}
                                         </div>
                                     </div>
                                     <hr />
@@ -433,14 +440,23 @@ function MypageForm() {
                                 >
                                     <h6>가맹점 리스트</h6>
                                 </div>
+                                {/* <div role='button' className="btn btn">
+                                <button
+                                    className="btn btnMenu btnAddMenu"
+                                    onClick={() => {
+                                        MenuModalShow();
+                                    }}
+                                >
+                                    메뉴 추가
+                                </button>
+                                </div> */}
                             </div>
                             <hr />
                             <div className="row fransimpledatazone--bodyzone">
                                 <div
                                     className="fransimpledatazone--franlistzone"
                                     style={{
-                                        textAlign: "center",
-                                        height: "350px",
+                                        textAlign: "center"
                                     }}
                                 >
                                     <Row
@@ -456,40 +472,58 @@ function MypageForm() {
                                         <Col md={5}>전화번호</Col>
                                         <Col md={1}></Col>
                                     </Row>
-                                    <ListGroup
-                                        style={{
-                                            height: "320px",
-                                            overflowY: "scroll",
-                                        }}
-                                    >
+                                    <ListGroup>
                                         {list.map((ele, idx) => {
                                             return (
                                                 <ListGroup.Item key={idx}>
-                                                    <Row>
-                                                        <Col md={3}>
-                                                            {
-                                                                list[idx]
-                                                                    .businessNumber
-                                                            }
-                                                        </Col>
-                                                        <Col md={3}>
-                                                            {list[idx].name}
-                                                        </Col>
-                                                        <Col md={5}>
-                                                            {list[idx].tel}
-                                                        </Col>
-                                                        <Col
-                                                            md={1}
-                                                            role="button"
-                                                            className="delFranbtn btn btn-danger"
-                                                            onClick={() => {
-                                                                setShow(true);
-                                                                setData(ele);
-                                                            }}
-                                                        >
-                                                            삭제
-                                                        </Col>
-                                                    </Row>
+                                                    <Link
+                                                        to="/businessList"
+                                                        style={{
+                                                            textDecoration:
+                                                                "none",
+                                                            color: "black",
+                                                        }}
+                                                    >
+                                                        <Row>
+                                                            <Col md={3}>
+                                                                {list[idx].businessNumber.replace(
+                                                                    /(\d{3})(\d{5})(\d{2})/,
+                                                                    "$1-$2-$3"
+                                                                )}
+                                                            </Col>
+
+                                                            <Col md={3}>
+                                                                {list[idx].name}
+                                                            </Col>
+                                                            <Col md={5}>
+                                                                {list[idx].tel.substring(
+                                                                    0,
+                                                                    2
+                                                                ) === "02"
+                                                                    ? list[idx].tel.replace(
+                                                                        /(\d{2})(\d{3,4})(\d{4})/,
+                                                                        "$1-$2-$3"
+                                                                    )
+                                                                    : list[idx].tel.replace(
+                                                                        /(\d{3})(\d{3,4})(\d{4})/,
+                                                                        "$1-$2-$3"
+                                                                    )}
+                                                            </Col>
+                                                            <Col
+                                                                md={1}
+                                                                role="button"
+                                                                className="delFranbtn btn btn-danger"
+                                                                onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    // e.stopPropagation();
+                                                                    setShow(true);
+                                                                    setData(ele);
+                                                                }}
+                                                            >
+                                                                삭제
+                                                            </Col>
+                                                        </Row>
+                                                    </Link>
                                                 </ListGroup.Item>
                                             );
                                         })}
@@ -540,7 +574,6 @@ function MypageForm() {
 function Mypage() {
     return (
         <>
-            <Header></Header>
             <MypageForm></MypageForm>
             <Footer></Footer>
         </>

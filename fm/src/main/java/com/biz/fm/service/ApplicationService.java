@@ -1,5 +1,6 @@
 package com.biz.fm.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.ibatis.javassist.NotFoundException;
@@ -12,6 +13,7 @@ import com.biz.fm.domain.dto.ApplicationDto.AppUpdateName;
 import com.biz.fm.domain.entity.AppToken;
 import com.biz.fm.domain.entity.Application;
 import com.biz.fm.domain.entity.Member;
+import com.biz.fm.exception.custom.ApplicationNameDuplicationException;
 import com.biz.fm.exception.custom.DeleteFailException;
 import com.biz.fm.exception.custom.InsertFailException;
 import com.biz.fm.exception.custom.InvalidEmailException;
@@ -31,18 +33,18 @@ public class ApplicationService {
 	private final AppTokenRepository appTokenRepository;
 	private final MemberRepository memberRepository;
 	
-	public Application getApp(String appId) throws NotFoundException{
-		Application app = applicationRepository.findById(appId);
-		if(app == null) throw new NotFoundException(null);
-		return app;
+	public List<Application> getAppList(String memberId) throws NotFoundException{
+		List<Application> appList = applicationRepository.findByIdList(memberId);
+		if(appList == null) throw new NotFoundException(null);
+		return appList;
 	}
 	
 	public Application insert(AppCreate createAppInfo) {
-		
-		String email = createAppInfo.getEmail();
-		Member member = memberRepository.findByEmail(email);
+		Member member = memberRepository.findByEmail(createAppInfo.getEmail());
+		Application app = applicationRepository.findByName(createAppInfo.getName());
 		
 		if(member == null) throw new InvalidEmailException();
+		if(app != null) throw new ApplicationNameDuplicationException();
 		
 		Application insertApp = Application.builder()
 											.id(UUID.randomUUID().toString().replace("-", ""))
@@ -88,19 +90,28 @@ public class ApplicationService {
 	public boolean delete(AppDelete appDelete) {
 		Application deleteApplication = applicationRepository.findById(appDelete.getAppId());
 		AppToken deleteAppToken = appTokenRepository.findByAppId(appDelete.getAppId());
-		if(deleteApplication == null && deleteAppToken == null) throw new DeleteFailException();
 		
-		//외래키로 연결되어 있기 때문에, appToken 을 먼저 제거해야 한다.
-		int appTokenDeleteResult = appTokenRepository.delete(appDelete.getAppId());
-		int applicationDeleteResult = applicationRepository.delete(appDelete.getAppId());
+		if(deleteApplication != null && deleteAppToken == null) {
+			int applicationDeleteResult = applicationRepository.delete(appDelete.getAppId());
+			if(applicationDeleteResult > 0) {
+				return true;
+			} else throw new DeleteFailException();
+		}
 		
-		//member 권한 ROLE_USER 변경
-		memberRepository.updateRole(deleteApplication.getMemberId(), Role.ROLE_USER.toString());
+		if(deleteApplication != null && deleteAppToken != null) {
+			//외래키로 연결되어 있기 때문에, appToken 을 먼저 제거해야 한다.
+			int appTokenDeleteResult = appTokenRepository.delete(appDelete.getAppId());
+			int applicationDeleteResult = applicationRepository.delete(appDelete.getAppId());
+			
+			//member 권한 ROLE_USER 변경
+			memberRepository.updateRole(deleteApplication.getMemberId(), Role.ROLE_USER.toString());
+			
+			if(applicationDeleteResult > 0 && appTokenDeleteResult > 0) {
+				return true;
+			} else throw new DeleteFailException();
+		}
 		
-		if(applicationDeleteResult > 0 && appTokenDeleteResult > 0) {
-			return true;
-		} else throw new DeleteFailException();
-		
+		return false;
 	}
 
 }

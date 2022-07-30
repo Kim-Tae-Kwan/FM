@@ -43,7 +43,7 @@ public class JwtTokenProvider { // JWT 토큰을 생성 및 검증 모듈
 	private String secretKey = "govlepel@$&";
 
 	private final long accessExpireTime = 60 * 60 * 1000L; 		// 1시간
-	private final long refreshExpireTime = 60 * 60 * 36000L; 	// 3일
+	private final long refreshExpireTime = 60 * 60 * 48000L; 	// 2일
 
 	// 객체 초기화, secretKey를 Base64로 인코딩한다.
 	@PostConstruct
@@ -104,19 +104,6 @@ public class JwtTokenProvider { // JWT 토큰을 생성 및 검증 모듈
 		return jwtResult;
 	}
 
-	// App Refresh 
-	public Map<String, String> ApiAuthCreateRefreshToken(String appId, String email) {
-		Map<String, Object> payloads = new HashMap<>();
-		payloads.put("appId", appId);
-		payloads.put("type", "appRefresh");
-
-		Date expiration = new Date();
-		expiration.setTime(expiration.getTime() + refreshExpireTime);
-
-		Map<String, String> jwtResult = jwtBuild(payloads, expiration, "refreshToken");
-		return jwtResult;
-	}
-
 	// Jwt 토큰 내용 정의
 	public Map<String, String> jwtBuild(Map<String, Object> payloads, Date expiration, String type) {
 		String jwt = Jwts
@@ -135,22 +122,31 @@ public class JwtTokenProvider { // JWT 토큰을 생성 및 검증 모듈
 	
 	// Jwt 토큰으로 인증 정보를 조회 : email
 	public Authentication getAuthentication(String token) {
-		UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUserInfo(token, "email"));
-		if (userDetails == null) return null;
-		
 		String tokenType = this.getUserInfo(token, "type");
 		
-		if(tokenType.equals("loginAccess")) {	  	// 로그인 토큰일 때
+		if(tokenType.equals("loginAccess")) {	  		// USER 토큰
+			UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUserInfo(token, "email"));
+			if (userDetails == null) return null;
+			
 			List<GrantedAuthority> updatedAuthorities = new ArrayList<>(userDetails.getAuthorities());
 			if(updatedAuthorities.size() > 1) updatedAuthorities.remove(1);
 			return new UsernamePasswordAuthenticationToken(userDetails, "", updatedAuthorities);
-		} else if(tokenType.equals("appAccess")) {	// APP 토큰일 때
+
+		} else if(tokenType.equals("appAccess")) {		// DEVELOPER 토큰
+			UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUserInfo(token, "email"));
+			if (userDetails == null) return null;
+			
 			List<GrantedAuthority> updatedAuthorities = new ArrayList<>(userDetails.getAuthorities());
 			updatedAuthorities.remove(0);
 			return new UsernamePasswordAuthenticationToken(userDetails, "", updatedAuthorities);
-		}  
-		
-		return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+	
+		} else if(tokenType.equals("guestAccess")) {	// GUEST 토큰
+			GuestAuthority guestAuthority = new GuestAuthority();
+			List<GrantedAuthority> updatedAuthorities = new ArrayList<>();
+			updatedAuthorities.add(guestAuthority);
+			return new UsernamePasswordAuthenticationToken("", "", updatedAuthorities);
+		}
+		return null;
 	}
 
 	// Jwt 토큰에서 회원 구별 정보 추출
@@ -160,7 +156,12 @@ public class JwtTokenProvider { // JWT 토큰을 생성 및 검증 모듈
 
 	// Request의 Header에서 token 파싱 : "Authorization: 로그인 jwt토큰"
 	public String resolveToken(HttpServletRequest req) {
-		return req.getHeader("Authorization");
+		String authorization = req.getHeader("Authorization");
+		if(authorization == null) return authorization;
+		else {
+			String beararAuthorization = authorization.substring(authorization.lastIndexOf(" ") + 1);
+			return beararAuthorization;
+		}
 	}
 	
 	// Jwt 토큰의 유효성 + 만료일자 확인
@@ -168,9 +169,8 @@ public class JwtTokenProvider { // JWT 토큰을 생성 및 검증 모듈
 		try {
 			// JWT 토큰 secretKey, 토큰 형식 검증
 			String type = this.getUserInfo(authToken, "type");
-			if (type == null)
-				return false;
-
+			if (type == null) return false;
+			
 			// API 요청시 유효한 AccessToken 인지 검증
 			if (type.equals("loginAccess")) {
 				LoginToken loginToken = loginTokenRepository.findByAccessToken(authToken);
@@ -180,23 +180,14 @@ public class JwtTokenProvider { // JWT 토큰을 생성 및 검증 모듈
 				AppToken appToken = appTokenRepository.findByAccessToken(authToken);
 				if (appToken == null)
 					return false;
-			} else if (type.equals("guestAccess")) {
-				LoginToken GuestLoginToken = loginTokenRepository.findByAccessToken(authToken);
-				if (GuestLoginToken == null)
-					return false;
-			}
+			} 
 
 			// 토큰 재발급 시 유효한 RefreshToken 인지 검증
 			if (type.equals("loginRefresh")) {
 				LoginToken loginToken = loginTokenRepository.findByRefreshToken(authToken);
 				if (loginToken == null)
 					return false;
-			} else if (type.equals("appRefresh")) {
-				AppToken appToken = appTokenRepository.findByRefreshToken(authToken);
-				if (appToken == null)
-					return false;
-			}
-
+			} 
 			return true;
 
 		} catch (MalformedJwtException e) { // JWT가 올바르게 구성되지 않았을 때

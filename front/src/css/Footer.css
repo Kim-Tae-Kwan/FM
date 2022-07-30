@@ -1,10 +1,36 @@
 .footer {
-    position: relative;
-    margin-top: 20px;
-    bottom: 0;
     width: 100%;
-    height: 60px;
-    color: #8a8c8f;
-    background-color: #f2f2f2;
-
+    margin: 80px auto;
+    padding: 35px 0 35px 0;
+    border-top: 1px solid #d8d8d8;
 }
+
+.footer_inner {
+    display: flex;
+    margin: 0 79px;
+}
+
+.footer_inner .logo_foot {
+    margin-right: 100px;
+}
+
+.footer_inner .footer_info > p {
+    display: block;
+    margin: 0;
+    padding: 4px 0 5px;
+    font-family: "NanumGothicRegular";
+    font-size: 12px;
+    color: #888;
+    line-height: 12px;
+    letter-spacing: normal;
+    word-break: keep-all;
+}
+
+.footer_inner .footer_info > p.foot_copyright {
+    margin-top: 20px;
+}
+.footer_inner .logo_foot > img {
+    max-width: 160px;
+    max-height: 32px;
+}
+

@@ -93,7 +93,7 @@ public class FranchiseeDto {
 		@ApiModelProperty(example = "가맹점주 아이디 ( memberId )")
 		private String ownerId;
 		
-		@NotBlank(message = "intro 공백일 수 없습니다")
+		
 		@ApiModelProperty(example = "가맹점 소개 글")
 		private String intro;
 		

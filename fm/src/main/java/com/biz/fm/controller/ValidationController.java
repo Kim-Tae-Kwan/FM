@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.biz.fm.domain.dto.EmailPasswordValicationDto.SendMail;
 import com.biz.fm.domain.dto.EmailPasswordValicationDto.UpdatePassword;
 import com.biz.fm.domain.dto.MemberDto.MemberResponse;
 import com.biz.fm.service.ValidationService;
@@ -39,31 +40,21 @@ public class ValidationController {
 		return ResponseEntity.ok(result);
 	} 
 	
-//	@GetMapping("/simple-password-change/check-info")
-//	@ApiOperation(value = "단순 비밀번호 변경 시, 사용자 정보가 유효한 정보인지 체크", notes = "전송된 이메일, 패스워드를 확인해 유효한 정보인지 확인한다.")
-//	public ResponseEntity<?> simpleCheckInfo(
-//			@ApiParam(value = "이메일", required = true) @RequestParam String email, 
-//			@ApiParam(value = "패스워드", required = true) @RequestParam String password) throws Exception {
-//
-//		boolean result = validationService.checkInfoIsValid(email, password);
-//		return ResponseEntity.ok(result);
-//	}
-	 
 	@PostMapping("/sign-up/send-code")
 	@ApiOperation(value = "회원가입 시, 인증 코드 이메일 전송", notes = "회원가입 시, 이메일 인증을 위한 인증 코드를 이메일로 전송한다.")
 	public ResponseEntity<?> emailValidationForSignUp(
-			@ApiParam(value = "인증 이메일", required = true) @RequestParam String email) throws Exception {
+			@ApiParam(value = "인증 이메일", required = true) @RequestBody SendMail sendMail) throws Exception {
 
-		boolean result = validationService.sendToEmailForSignUp(email);
+		boolean result = validationService.sendToEmailForSignUp(sendMail);
 		return ResponseEntity.ok(result);
 	}
 	
 	@PostMapping("/lose-password/send-code")
 	@ApiOperation(value = "비밀번호 분실 or 변경 시, 인증 코드 이메일 전송", notes = "비밀번호 분실 or 변경 시, 이메일 인증을 위한 코드를 이메일로 전송한다.")
 	public ResponseEntity<?> emailAndNameValidationForPassword(
-			@ApiParam(value = "인증 정보", required = true) @RequestParam String email) throws Exception{
+			@ApiParam(value = "인증 정보", required = true) @RequestBody SendMail sendMail) throws Exception{
 
-		boolean result = validationService.sendToEmailForPassword(email);
+		boolean result = validationService.sendToEmailForPassword(sendMail);
 		return ResponseEntity.ok(result);
 	}
 	

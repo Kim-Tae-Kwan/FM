@@ -6,7 +6,7 @@ import LoginModal from "./LoginModal";
 import { TbSearch } from "react-icons/tb";
 
 import "../css/SearchBar.css";
-import axios from "axios";
+import { instance } from "./AxiosConfig/AxiosInterceptor";
 
 export const loginCreateContext = createContext();
 export const registcreateContext = createContext();
@@ -29,21 +29,20 @@ function SearchBar({ searchResultTogFun }) {
     const showAddFrenModal = () => {
         setAddFrenShow((showAddFren = !showAddFren));
     };
-
     const [username, setUsername] = useState(localStorage.getItem("userName"));
-    const [havefranchisee, setHavefranchisee] = useState(false);
+    //사업자 번호에 따른 사업자 번호 메인 화면에서 출력
+    // const [havefranchisee, setHavefranchisee] = useState(false);
 
     const logoutHandler = () => {
-        axios({
+        instance({
             method: "post",
-            url: "http://192.168.240.250:8080/api/v1/sign/signout",
+            url: "/sign/signout",
             data: {
-                email: localStorage.getItem("email"),
+                email: localStorage.getItem('email'),
                 // localStorage.getItem('email')
             },
         }).then(function (res) {
             localStorage.clear();
-            axios.defaults.headers.common["Authorization"] = "";
             setUsername("");
             alert("로그 아웃");
         });
@@ -71,20 +70,25 @@ function SearchBar({ searchResultTogFun }) {
                     </InputGroup>
                 </div>
                 <div className="dropdown">
-                    <img src="./img/usermarker.png" role="button"></img>
+                    <img
+                        src="./img/usermarker.png"
+                        alt="유저사진"
+                        role="button"
+                    ></img>
                     <ul
                         className="dropdown-menu searchArea--dropdown__dropdownlist"
-                        role="card"
+                        // role="card"
                         aria-labelledby="dropdownMenuLink"
                     >
                         {localStorage.getItem("accessToken") && (
-                            <Card.Header> {username} 님 환영합니다</Card.Header>
+                            <Card.Header> <p>{username} 님</p>
+                            <p>환영합니다.</p></Card.Header>
                         )}
-                        {havefranchisee && (
+                        {/* {havefranchisee && (
                             <Card.Body>
                                 <Card.Text>사업자 번호</Card.Text>
                             </Card.Body>
-                        )}
+                        )} */}
                         {!localStorage.getItem("accessToken") && (
                             <registcreateContext.Provider
                                 value={{
@@ -95,7 +99,6 @@ function SearchBar({ searchResultTogFun }) {
                                 <li role="button">
                                     <p
                                         className="dropdown-item"
-                                        style={{ marginTop: "15px" }}
                                         onClick={showRegisterModal}
                                     >
                                         회원가입

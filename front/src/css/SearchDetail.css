@@ -13,40 +13,48 @@
     border-bottom: 0.5px solid rgba(230,230,230,0.7);
     /* box-shadow: 0px 1px 0px 0px rgba(230,230,230,0.9); */
 }
+
+/* 대표이미지 css */
+.offcanvas-body--titlezone>div>img{
+    width: 100%;
+    height: 200px;
+}
+
+/* 대표이미지 아래 설명존 css */
+#offcanvas-body--titlezone--intro>h3{
+    border-top: 0px;
+    margin-top: 20px;
+    padding-top: 0px;
+}
+#offcanvas-body--titlezone--intro>p{
+    padding-top: 0px;
+    margin-bottom: 10px;
+}
+
+/* 바디존 css */
 .searchDeatil-offcanvasbody--bodyzone{
     -ms-overflow-style:none;
     scrollbar-width: none;
-
-    text-align: center;
 }
 .searchDeatil-offcanvasbody--bodyzone::-webkit-scrollbar{
     display: none;
 }
 
 .searchDeatil-offcanvasbody--buttonzone>*{
-    text-align: center;
+    text-align: left;
 }
 
-.searchDeatil-offcanvasbody--buttontab{
+/* 정보, 메뉴, 리뷰 버튼존 css */
+.searchDeatil-offcanvasbody--buttontab.nav{
     text-align: center;
     width: 100%;
+    height: 42px;
 }
-
-.nav{
-    display: block;
-    width: 100%;
+.searchDeatil-offcanvasbody--buttontab.nav>.nav-item{
+    padding: 0px;
+    border: none;
+    margin-top: 0px;
     text-align: center;
-}
-
-.nav-item{
-    display: block;
-    width: 33%;
-    text-align: center;
-}
-
-.nav-item button{
-    text-align: center;
-    width: 100%;
 }
 
 .searchDeatil-offcanvas{
@@ -64,10 +72,29 @@
 
 .searchDeatil-offcanvasbody--cardzone.card{
     background-color: rgba(240,240,240,0.5);
+    border-radius: 8px;
 }
 
 .searchDeatil-offcanvasbody--cardzone>*{
     text-align: left;
+}
+
+.searchDeatil-offcanvasbody--cardzone.card>.card-body>img{
+    width: 140px;
+    height: 85px;
+    float: left;
+    margin-right: 10px;
+    border-radius: 6px;
+}
+
+.searchDeatil-offcanvasbody--reviewCardzone.card{
+    background-color: rgba(240,240,240,0.5);
+}
+.searchDeatil-offcanvasbody--reviewCardzone>.card-body>img{
+    width: 100px;
+    height: 65px;
+    margin-right: 10px;
+    float: left;
 }
 
 .offcanvas.searchDeatil-offcanvas{
@@ -75,4 +102,43 @@
 }
 .priceText.card-subtitle{
     color:#ff5757;
+}
+
+/* 영업시간 아코디언 디자인 css */
+#searchDeatil-offcanvasbody--runtimezome>.accordion>.accordion-item{
+    border: 0px;
+}
+#searchDeatil-offcanvasbody--runtimezome>.accordion>.accordion-item>.accordion-header{
+    background-color: white;
+}
+#searchDeatil-offcanvasbody--runtimezome>.accordion>.accordion-item>.accordion-header>.accordion-button{
+    padding: 0px;
+    background-color: white;
+}
+#searchDeatil-offcanvasbody--runtimezome>.accordion>.accordion-item>.accordion-header>.accordion-button.collapsed{
+    padding: 0px;
+    background-color: white;
+}
+#searchDeatil-offcanvasbody--runtimezome>.accordion>.accordion-item>.accordion-header>.accordion-button{
+    border: 0px solid black;
+    box-shadow:none;
+    background-color:white;
+    color: black;
+}
+
+/* 메뉴없을 시 나오는 화면 css*/
+.searchDeatil-offcanvasbody--defaultMenuZone{
+    margin-top: 10%;
+    text-align: center;
+    background-color: rgba(240,240,240,0.5);
+    width: 100%;
+    height: 200px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,0.3);
+}
+.searchDeatil-offcanvasbody--defaultMenuZone>h1{
+    font-size: 100px;
+}
+.searchDeatil-offcanvasbody--defaultMenuZone>p{
+    margin-top: 15px;
 }

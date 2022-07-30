@@ -1,5 +1,6 @@
 package com.biz.fm.service;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +27,7 @@ import com.biz.fm.exception.custom.DeleteFailException;
 import com.biz.fm.exception.custom.InsertFailException;
 import com.biz.fm.exception.custom.UpdateFailException;
 import com.biz.fm.repository.AddressRepository;
+import com.biz.fm.repository.FileDataRepository;
 import com.biz.fm.repository.FranchiseeRepository;
 import com.biz.fm.repository.FranchiseeimageRepository;
 import com.biz.fm.repository.MenuImageRepository;
@@ -45,6 +47,7 @@ public class FranchiseeService {
 	private final AddressRepository addressRepository;
 	private final FranchiseeRepository franchiseeRepository;
 	private final MenuImageRepository menuImageRepository;
+	private final FileDataRepository fileDataRepository;
 	private final FranchiseeimageRepository franchiseeimageRepository;
 	
 	public List<FranchiseeResponse> findAllByDistance(Double longitude, Double latitude, Integer radius) throws NotFoundException{
@@ -135,6 +138,7 @@ public class FranchiseeService {
 		else throw new InsertFailException();
 	}
 	
+	@Transactional(rollbackFor = {Exception.class})
 	public Menu insertMenu(String businessNumber, MenuCreate menuCreate) {
 		
 		Menu menu = Menu.builder()
@@ -146,15 +150,18 @@ public class FranchiseeService {
 				.build();
 		
 		int result = menuRepository.insert(menu);
-		if(result > 0) {
-			
-			//메뉴 이미지 정보 등록
-			if(menuCreate.getImageId() != null) menuImageRepository.insert(menuCreate.getImageId(), menu.getId());
-			else menuImageRepository.insert("a70427302ce343c2bd29054e7dd82cc0", menu.getId());
+		if(result > 0) { // 메뉴 정보 입력 완료.
+			//메뉴 이미지 정보 등록.
+			String imageId = menuCreate.getImageId();
+			if(imageId == null) menuImageRepository.insert("a70427302ce343c2bd29054e7dd82cc0", menu.getId());
+			else {
+				if(imageId.isEmpty()) throw new InsertFailException("imageId는 빈값일 수 없습니다.");
+				if(!fileDataRepository.checkFileIdExists(imageId)) throw new InsertFailException("존재하지 않는 imageId 입니다.");
+				menuImageRepository.insert(imageId, menu.getId());
+			}
 			
 			return menuRepository.findById(menu.getId());
-		}
-		else throw new InsertFailException();
+		}else throw new InsertFailException();
 	}
 	
 	public FranchiseeResponse update(String businessNumber, FranchiseeUpdate franchisee) throws JsonMappingException, JsonProcessingException {

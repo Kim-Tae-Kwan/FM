@@ -101,7 +101,10 @@ public class MemberService {
 		Member member = memberRepository.findById(memberId);
 		if(member == null) throw new DeleteFailException();
 		
-		int result = memberRepository.delete(memberId);
+		String deleteEamil = member.getEmail() + "/DELETE";
+		member.setEmail(deleteEamil);
+		
+		int result = memberRepository.delete(memberId, deleteEamil);
 		if(result > 0) {
 			return member.toMemberRead();
 		}

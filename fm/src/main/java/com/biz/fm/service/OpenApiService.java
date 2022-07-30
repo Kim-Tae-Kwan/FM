@@ -5,8 +5,10 @@ import java.util.List;
 
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.biz.fm.domain.dto.FileDataDto.FileDataListResonse;
+import com.biz.fm.domain.dto.FileDataDto.FileDataOpenResponse;
 import com.biz.fm.domain.dto.FileDataDto.FileDataResponse;
 import com.biz.fm.domain.dto.FranchiseeDto.FranchiseeListResonse;
 import com.biz.fm.domain.dto.FranchiseeDto.FranchiseeResponse;
@@ -17,6 +19,7 @@ import com.biz.fm.domain.dto.MenuDto.MenuResponse;
 import com.biz.fm.domain.entity.FileData;
 import com.biz.fm.domain.entity.Franchisee;
 import com.biz.fm.repository.FranchiseeRepository;
+import com.biz.fm.repository.FranchiseeimageRepository;
 import com.biz.fm.repository.MenuRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -27,16 +30,24 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OpenApiService {
 	
+	private final MenuRepository menuRepository;
 	private final FranchiseeService franchiseeService;
 	private final FranchiseeRepository franchiseeRepository;
-	private final MenuRepository menuRepository;
+	private final FranchiseeimageRepository franchiseeimageRepository;
 	
-	public FranchiseeListResonse findAllByPage(int page, int rowsNum) throws NotFoundException {
+	public FranchiseeListResonse findAllByPage(int page, int rowsNum, String bsnsNm) throws NotFoundException {
 		
 		int offset = (page - 1) * rowsNum;
-		List<Franchisee> franchisees = franchiseeRepository.findAllByPage(offset, rowsNum);
+		List<Franchisee> franchisees = null;
 		
-		if(franchisees.size() == 0) throw new NotFoundException(null);
+		if(bsnsNm == null) {
+			franchisees = franchiseeRepository.findAllByPage(offset, rowsNum);
+		}else {
+			bsnsNm = bsnsNm.trim();
+			franchisees = franchiseeRepository.findAllByPageWithBusinessName(offset, rowsNum, bsnsNm);
+		}
+		
+		if(franchisees.size() == 0) throw new NotFoundException("조건에 맞는 가맹점을 찾지 못 했습니다.");
 		
 		List<FranchiseeResponse> franchiseeResponses = new ArrayList<>();
 		for(Franchisee franchisee : franchisees) {
@@ -57,7 +68,7 @@ public class OpenApiService {
 	public MenuListResonse findMenuByBusinessNumber(String businessNumber) throws NotFoundException{
 		
 		List<MenuResponse> menus = menuRepository.findBybusinessNumber(businessNumber);
-		if(menus.size() == 0) throw new NotFoundException(null);
+		if(menus.size() == 0) throw new NotFoundException("조건에 맞는 메뉴를 찾지 못 했습니다.");
 		
 		List<MenuOpenApiResponse> menuOpenApiResponses = new ArrayList<>();
 		for(MenuResponse menuResponse : menus) {
@@ -81,13 +92,27 @@ public class OpenApiService {
 	}
 	
 	public FileDataListResonse findImageAllByBusinessNumber(String businessNumber) throws NotFoundException {
-		List<FileDataResponse> fileDataResponses = franchiseeService.findImageAllByBusinessNumber(businessNumber);
+		List<FileData> fimages = franchiseeimageRepository.findAllByBusinessNumber(businessNumber);
+		if(fimages.size() == 0) throw new NotFoundException("조건에 맞는 이미지를 찾지 못 했습니다.");
+		
+		List<FileDataOpenResponse> fileDataResponses = new ArrayList<>();
+		for(FileData data : fimages) {
+			fileDataResponses.add(data.toFileDataOpenResponse());
+		}
+		
 		return FileDataListResonse.builder()
 								   .images(fileDataResponses)
 								   .build();
 	}
 	
 	public Hours findHoursByBusinessNumber(String businessNumber) throws JsonMappingException, JsonProcessingException, NotFoundException {
-		return franchiseeService.findHoursByBusinessNumber(businessNumber);
+		Hours hours = null;
+		try {
+			hours = franchiseeService.findHoursByBusinessNumber(businessNumber);
+		} catch (Exception e) {
+			throw new NotFoundException("조건에 맞는 영업시간을 찾지 못 했습니다.");
+		}
+		
+		return hours;
 	}
 }

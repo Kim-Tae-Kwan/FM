@@ -11,6 +11,9 @@ const Modals = ({ show, setShow, data, list, setList }) => {
         console.log(list);
         axios({
             method: "delete",
+            headers: {
+                Authorization: 'Bearer '+localStorage.getItem("accessToken")
+            },
             url:
                 `http://192.168.240.250:8080/api/v1/franchisee/` +
                 data.businessNumber,
@@ -32,7 +35,7 @@ const Modals = ({ show, setShow, data, list, setList }) => {
                 <Button variant="secondary" onClick={handleClose}>
                     닫기
                 </Button>
-                <Button variant="primary" onClick={DelFran}>
+                <Button variant="danger" onClick={DelFran}>
                     삭제
                 </Button>
             </Modal.Footer>

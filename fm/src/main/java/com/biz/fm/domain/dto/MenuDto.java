@@ -88,7 +88,7 @@ public class MenuDto {
 		@ApiModelProperty(example = "메뉴 이름")
 		private String name;
 		
-		@NotBlank
+		
 		@ApiModelProperty(example = "메뉴 소개")
 		private String description;
 		

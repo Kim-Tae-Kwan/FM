@@ -14,7 +14,6 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import com.biz.fm.domain.dto.FranchiseeDto.FranchiseeCreate;
-import com.biz.fm.domain.dto.FranchiseeDto.Hours;
 import com.biz.fm.domain.entity.Franchisee;
 
 @Mapper
@@ -53,6 +52,15 @@ public interface FranchiseeRepository{
 			+ "LIMIT #{offset}, #{rowsNum} ")
 	@ResultMap("FranchiseeEntityMap")
 	public List<Franchisee> findAllByPage(int offset, int rowsNum);
+	
+	@Select("SELECT *, member.name as member_name FROM franchisee "
+			+ "JOIN address ON franchisee.address_id = address.id "
+			+ "JOIN member ON franchisee.owner_id = member.id "
+			+ "WHERE franchisee.name like CONCAT('%', #{bsnsNm}, '%') "
+			+ "ORDER BY franchisee.name "
+			+ "LIMIT #{offset}, #{rowsNum} ")
+	@ResultMap("FranchiseeEntityMap")
+	public List<Franchisee> findAllByPageWithBusinessName(int offset, int rowsNum, String bsnsNm);
 	
 	@Select("SELECT *, member.name as member_name FROM franchisee "
 			+ "JOIN address ON franchisee.address_id = address.id "

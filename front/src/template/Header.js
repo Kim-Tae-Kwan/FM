@@ -1,32 +1,28 @@
-import { Nav } from "react-bootstrap";
+import { Nav, Dropdown} from "react-bootstrap";
 import "../css/Header.css";
 import Navbar from "react-bootstrap/Navbar";
-import { NavLink } from "react-router-dom";
-import axios from "axios";
-
+import { NavLink, Link } from "react-router-dom";
+import { instance } from "./AxiosConfig/AxiosInterceptor";
 function Header() {
     // const [dropdownVisibility, setDropdownVisibility] = useState(false);
     // const [color, setColor] = useState(false);
-
     const logoutHandler = () => {
-        axios({
+        instance({
             method: "post",
-            url: "http://192.168.240.250:8080/api/v1/sign/signout",
+            url: "/sign/signout",
             data: {
                 email: localStorage.getItem("email"),
-                // localStorage.getItem('email')
             },
         }).then(function (res) {
             console.log(res);
             localStorage.clear();
-            axios.defaults.headers.common["Authorization"] = "";
             window.location.href = "http://localhost:3000/";
         });
     };
 
     return (
         <>
-            <Navbar expand="lg" style={{ background: "#4287f5" }}>
+            <Navbar expand="lg" style={{ background: "#4287f5" }} fixed='top'>
                 <Navbar.Brand
                     id="Header__mainText"
                     href="/"
@@ -34,7 +30,18 @@ function Header() {
                 >
                     <img alt="메인로고이미지" src="./img/logo.jpg" />
                 </Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                {/* <Navbar.Toggle>
+                    <a href={()=>false} id="Header__Account__UserName">
+                        {localStorage.getItem("userName")}
+                    </a>
+                    <Navbar.Text className="Header--Account__UserInfo" href="/">
+                        <img
+                            alt="유저이미지"
+                            id="Header--Account__Img"
+                            src="./img/usermarker.png"
+                        />
+                    </Navbar.Text>
+                </Navbar.Toggle> */}
                 <Navbar.Collapse
                     id="basic-navbar-nav"
                     className="justify-content-end"
@@ -52,7 +59,7 @@ function Header() {
                                 id="Header--Nav__BusinessList"
                                 style={({ isActive }) =>
                                     isActive
-                                        ? { backgroundColor: "rgb(13,110,253)" }
+                                        ? { backgroundColor: "#217af4" }
                                         : {}
                                 }
                             >
@@ -67,7 +74,7 @@ function Header() {
                                 id="Header--Nav__BusinessList"
                                 style={({ isActive }) =>
                                     isActive
-                                        ? { backgroundColor: "rgb(13,110,253)" }
+                                        ? { backgroundColor: "#217af4" }
                                         : {}
                                 }
                             >
@@ -82,7 +89,7 @@ function Header() {
                                 id="Header--Nav__BusinessList"
                                 style={({ isActive }) =>
                                     isActive
-                                        ? { backgroundColor: "rgb(13,110,253)" }
+                                        ? { backgroundColor: "#217af4" }
                                         : {}
                                 }
                             >
@@ -92,9 +99,9 @@ function Header() {
                     </Nav>
                 </Navbar.Collapse>
                 <Navbar.Text className="dropdown">
-                    <a href="{()=>false}" id="Header__Account__UserName">
+                    <Link to={()=>false} id="Header__Account__UserName">
                         {localStorage.getItem("userName")}
-                    </a>
+                    </Link>
                     <Navbar.Text className="Header--Account__UserInfo" href="/">
                         <img
                             alt="유저이미지"
@@ -102,19 +109,43 @@ function Header() {
                             src="./img/usermarker.png"
                         />
                     </Navbar.Text>
-
                     <ul
-                        className="dropdown-menu"
+                        className="dropdown-menu header-dropdown"
                         aria-labelledby="dropdownMenuLink"
                     >
                         <li role="button">
-                            <a
-                                href="{()=>false}"
+                            <Link
+                                to="/mypage"
+                                className="dropdown-item"
+                            >
+                                마이페이지
+                            </Link>
+                        </li>
+                        <li role="button">
+                            <Link
+                                to="/businessList"
+                                className="dropdown-item"
+                            >
+                                가맹점리스트
+                            </Link>
+                        </li>
+                        <li role="button">
+                            <Link
+                                to="/apiDocs"
+                                className="dropdown-item"
+                            >
+                                API서비스
+                            </Link>
+                        </li>
+                        <Dropdown.Divider />
+                        <li role="button">
+                            <Link
+                                to={()=>false}
                                 className="dropdown-item"
                                 onClick={logoutHandler}
                             >
                                 로그아웃
-                            </a>
+                            </Link>
                         </li>
                     </ul>
                 </Navbar.Text>

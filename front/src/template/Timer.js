@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 const Timer = ({ active, onCheckTime }) => {
-  //5분 고정이 아닐 경우 Props로 전달
+  //3분 고정이 아닐 경우 Props로 전달
   const [min, setMin] = useState(3);
   const [sec, setSec] = useState(0);
 

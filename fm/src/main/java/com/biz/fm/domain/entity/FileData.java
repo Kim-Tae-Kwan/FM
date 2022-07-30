@@ -2,6 +2,9 @@ package com.biz.fm.domain.entity;
 
 import java.sql.Timestamp;
 
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.biz.fm.domain.dto.FileDataDto.FileDataOpenResponse;
 import com.biz.fm.domain.dto.FileDataDto.FileDataResponse;
 import com.biz.fm.domain.dto.FileDataDto.UploadResponse;
 
@@ -24,6 +27,17 @@ public class FileData {
 	private String type;
 	private Timestamp createDate;
 	private Timestamp deleteDate;
+	
+	public FileDataOpenResponse toFileDataOpenResponse() {
+		String contextPath = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
+		return FileDataOpenResponse.builder()
+				.downloadUrl(contextPath + path)
+				.size(size)
+				.name(name)
+				.type(type)
+				.createDate(createDate)
+				.build();
+	}
 	
 	public FileDataResponse toFileDataResponse() {
 		return FileDataResponse.builder()

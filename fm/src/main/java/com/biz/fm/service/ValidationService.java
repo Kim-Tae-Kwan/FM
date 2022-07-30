@@ -15,6 +15,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.biz.fm.domain.dto.EmailPasswordValicationDto.SendMail;
 import com.biz.fm.domain.dto.EmailPasswordValicationDto.UpdatePassword;
 import com.biz.fm.domain.dto.MemberDto.MemberResponse;
 import com.biz.fm.repository.MemberRepository;
@@ -40,17 +41,20 @@ public class ValidationService {
 	private final PasswordEncoder passwordEncoder;
 
 	// 회원가입 시 이메일 인증
-	public boolean sendToEmailForSignUp(String email) throws Exception {
-		boolean result = checkVaulidation(email);
+	public boolean sendToEmailForSignUp(SendMail sendMail) throws Exception {
+		Member checkResult = memberRepository.findByEmailForValidation(sendMail.getEmail());
+		if (checkResult != null) throw new InvalidEmailException();
+		
+		boolean result = checkVaulidation(sendMail.getEmail());
 		return result;
 	}
 
 	// 비밀번호 찾을 시 이메일 인증
-	public boolean sendToEmailForPassword(String email) throws Exception {
-		Member checkResult = memberRepository.findByEmailForPassword(email);
+	public boolean sendToEmailForPassword(SendMail sendMail) throws Exception {
+		Member checkResult = memberRepository.findByEmailForValidation(sendMail.getEmail());
 		if (checkResult == null) throw new NotFoundException("등록된 이메일이 존재하지 않습니다.");
 			
-		boolean result = checkVaulidation(email);
+		boolean result = checkVaulidation(sendMail.getEmail());
 		return result;
 	}
 
@@ -92,7 +96,8 @@ public class ValidationService {
 	}
 	
 	public boolean checkVaulidation(String email) throws Exception {
-		String code = createCode(); // 인증번호
+		// 인증번호
+		String code = createCode(); 
 		
 		Validation calculation = Validation
 									.builder()
@@ -104,14 +109,24 @@ public class ValidationService {
 		if(validationResult == null) {
 			int insertResult = validationRepository.insert(calculation);
 			if (insertResult > 0) {
-				this.sendMail(email, code);
+				// 제한시간
+				Date expiration = validationRepository.findByEmail(email).getCreateDateExpiration();	
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY-MM-dd HH:mm");
+				String dataFormatExpiration = simpleDateFormat.format(expiration);
+				
+				this.sendMail(email, code, dataFormatExpiration);
 				return true;
 			}
 				
 		} else if (validationResult != null) {
 			int updateResult = validationRepository.update(calculation);
 			if (updateResult > 0) {
-				this.sendMail(email, code);
+				// 제한시간
+				Date expiration = validationRepository.findByEmail(email).getCreateDateExpiration();	
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY-MM-dd HH:mm");
+				String dataFormatExpiration = simpleDateFormat.format(expiration);
+				
+				this.sendMail(email, code, dataFormatExpiration); 
 				return true;
 			}
 		}
@@ -123,7 +138,7 @@ public class ValidationService {
 		Validation findResultByEmail = validationRepository.findByEmail(email);
 		Validation findResultByCode = validationRepository.findByCode(code);
 		
-		if(findResultByEmail == null) throw new NotFoundException("등록된 이메일이 존재하지 않습니다.");
+		if(findResultByEmail == null) throw new NotFoundException("인증 이메일 정보가 존재하지 않습니다. 인증 코드를 재발급 받아주세요.");
 		if(findResultByCode == null) throw new NotFoundException("인증 코드가 일치하지 않습니다.");
 
 		Timestamp createDateExpiration = findResultByEmail.getCreateDateExpiration();
@@ -154,7 +169,7 @@ public class ValidationService {
 		return result;
 	}
 
-	public void sendMail(String email, String code) throws MessagingException {
+	public void sendMail(String email, String code, String time) throws MessagingException {
 		MimeMessage message = mailSender.createMimeMessage();
 		message.addRecipients(RecipientType.TO, email); // 보내는 대상
 		message.setSubject("FM 회원정보 인증번호 : " + code); // 제목
@@ -234,7 +249,7 @@ public class ValidationService {
                 + "                      </th>\r\n"
                 + "                      <td width=\"2%\"/>\r\n"
                 + "                      <td valign=\"top\" width=\"65%\" style=\"font-size:14px;font-weight:bold;word-break:break-all\">\r\n"
-                +                         email+"\r\n"
+                +                         email + "\r\n"
                 + "                      </td>\r\n"
                 + "                      <td width=\"3%\"/>\r\n"
                 + "                    </tr>\r\n"
@@ -247,8 +262,22 @@ public class ValidationService {
                 + "                        인증번호\r\n"
                 + "                      </th>\r\n"
                 + "                      <td width=\"2%\"/>\r\n"
+                + "                      <td valign=\"top\" width=\"65%\" style=\"font-size:14px;font-weight:bold;word-break:break-all\">\r\n"
+                +                         code + "\r\n"
+                + "                      </td>\r\n"
+                + "                      <td width=\"3%\"/>\r\n"
+                + "                    </tr>\r\n"
+                + "                    <tr>\r\n"
+                + "                      <td width=\"100%\" height=\"8\" colspan=\"5\"/>\r\n"
+                + "                    </tr>\r\n"
+                + "                    <tr>\r\n"
+                + "                      <td width=\"3%\"/>\r\n"
+                + "                      <th align=\"left\" colspan=\"1\" rowspan=\"1\" valign=\"top\" width=\"35%\" style=\"font-size:14px;font-weight:normal\">\r\n"
+                + "                        제한시간\r\n"
+                + "                      </th>\r\n"
+                + "                      <td width=\"2%\"/>\r\n"
                 + "                    <td valign=\"top\" width=\"65%\" style=\"font-size:14px;font-weight:bold;word-break:break-all\">\r\n"
-                +                         code+"\r\n"
+                +                         time + "\r\n"
                 + "                    </td>\r\n"
                 + "                    <td width=\"3%\"/>\r\n"
                 + "                  </tr>\r\n"
@@ -334,7 +363,7 @@ public class ValidationService {
 
         String msg = sb.toString();
 		
-		message.setText(msg, "utf-8", "html"); // 내용
+		message.setText(msg, "utf-8", "html"); 		 // 내용
 		message.setFrom(new InternetAddress(email)); // 보내는 사람
 
 		mailSender.send(message);

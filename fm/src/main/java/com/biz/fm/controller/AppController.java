@@ -32,10 +32,10 @@ public class AppController {
 	
 	private final ApplicationService appService;
 	
-	@GetMapping("/{appId}")
-	@ApiOperation(value = "앱 조회", notes = "앱 아이디를 통해서 조회한다.")
-	public ResponseEntity<?> selectOne(@ApiParam(value = "앱 조회 정보", required = true) @PathVariable String appId) throws NotFoundException{
-		return ResponseEntity.ok(appService.getApp(appId));
+	@GetMapping("/{memberId}")
+	@ApiOperation(value = "앱 조회", notes = "member 아이디를 통해서 조회한다.")
+	public ResponseEntity<?> selectOne(@ApiParam(value = "앱 조회 정보", required = true) @PathVariable String memberId) throws NotFoundException{
+		return ResponseEntity.ok(appService.getAppList(memberId));
 	}
 	
 	@PostMapping

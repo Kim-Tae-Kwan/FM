@@ -32,10 +32,21 @@
 
 /* 오른쪽 유저정보 버튼 드랍다운 메뉴리스트 */
 .dropdown-menu.searchArea--dropdown__dropdownlist{
+    min-width: 120px;
     right: 0px;
     top: 50px;
     padding: 0px;
     height: auto;
+}
+.dropdown-menu.searchArea--dropdown__dropdownlist>.card-header>p{
+    margin: 0px;
+}
+.dropdown-menu.searchArea--dropdown__dropdownlist>li{
+    padding: 0px;
+    width: 100%;
+}
+.dropdown-menu.searchArea--dropdown__dropdownlist>li>.dropdown-item{
+    margin: 0px;
 }
 
 /* 검색버튼 위치 */

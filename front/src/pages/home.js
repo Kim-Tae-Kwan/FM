@@ -21,10 +21,11 @@ function Home() {
   };
 
   const detailTogFun = (e) => {
-    setDetailTog((detailTog = !detailTog));
+    setDetailTog((detailTog = true));
     setClickMarkerBN(e);
-    console.log(e);
+    // console.log('detailTog?',detailTog);
   }
+  test.indexDetailTog=detailTogFun;
 
   return (
     <div className="outline">

@@ -1,5 +1,6 @@
 package com.biz.fm.repository;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Insert;
@@ -12,7 +13,6 @@ import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
-import com.biz.fm.domain.dto.EmailPasswordValicationDto.UpdatePassword;
 import com.biz.fm.domain.dto.MemberDto.MemberUp;
 import com.biz.fm.domain.dto.MemberDto.MemberUpdate;
 import com.biz.fm.domain.entity.Member;
@@ -41,8 +41,11 @@ public interface MemberRepository {
 	@Select("SELECT * FROM member m JOIN address a ON m.address_id = a.id WHERE email = #{email} AND delete_date is null")
 	public Member findByEmail(String email);
 	
+//	@Select("SELECT delete_date FROM member WHERE email = #{email}")
+//	public Timestamp findByEmailForDeleteDate(String email);
+	
 	@Select("SELECT * FROM member WHERE email = #{email}")
-	public Member findByEmailForPassword(String email);
+	public Member findByEmailForValidation(String email);
 	
 	@Select("SELECT * FROM member m JOIN address a ON m.address_id = a.id WHERE password = #{password} AND delete_date is null")
 	@ResultMap("MemberEntityMap")
@@ -62,7 +65,7 @@ public interface MemberRepository {
 	@Update("UPDATE member SET role = #{role} WHERE id = #{id}")
 	public int updateRole(String id, String role);
 
-	@Update("UPDATE member SET delete_Date = now() WHERE id = #{id}")
-	public int delete(String id);
+	@Update("UPDATE member SET delete_Date = now(), email = #{deleteEmail} WHERE id = #{id}")
+	public int delete(String id, String deleteEmail);
 	
 }

@@ -1,4 +1,4 @@
-h3 {
+.area__doc__subject{
     margin-top: 60px;
     padding-top: 60px;
     border-top: 1px solid #e2e4ee;
@@ -11,13 +11,12 @@ h3 {
     font-family: 'NotoSans Medium', 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', '돋움', dotum, sans-serif;
 }
 
-p {
+.area__doc__header p{
     padding-top: 16px;
     color: #444;
     letter-spacing: -0.2px;
     line-height: 26px;
     white-space: pre-line;
-    /* padding-top: 18px; */
     font-size: 16px;
     font-family: 'NotoSans DemiLight', 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', '돋움', dotum, sans-serif;
     margin-bottom: 0px;
@@ -25,38 +24,7 @@ p {
     word-break: keep-all;
 }
 
-h4 {
-    font-weight: bold;
-    line-height: 28px;
-    color: #111;
-    letter-spacing: -0.2px;
-    font-family: 'NotoSans Medium', 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', '돋움', dotum, sans-serif;
-    padding-top: 40px;
-}
-
-h5 {
-    display: block;
-    margin-top: 18px;
-    margin-bottom: 0px;
-    font-family: 'NotoSans Medium', 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', '돋움', dotum, sans-serif;
-    font-size: 16px;
-    font-weight: bold;
-    line-height: 26px;
-}
-p pre {
-    margin-top: 14px;
-}
-
-pre {
-    overflow-x: auto;
-    margin-top: 14px !important;
-    font-family: 'RobotoMono Regular', 'NotoSans Light', monospace, 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', '돋움', dotum, sans-serif;
-    color: white;
-    font-size: 15px;
-    line-height: 26px;
-}
-
-p code {
+.area__doc__header p code {
     padding: 2px 5px 3px;
     font-size: 15px;
     line-height: 20px;
@@ -67,7 +35,39 @@ p code {
     text-indent: initial;
 }
 
-tbody td {
+.area__doc__body h4{
+    font-weight: bold;
+    line-height: 28px;
+    color: #111;
+    letter-spacing: -0.2px;
+    font-family: 'NotoSans Medium', 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', '돋움', dotum, sans-serif;
+    padding-top: 40px;
+}
+
+.area__doc__body h5{
+    display: block;
+    margin-top: 18px;
+    margin-bottom: 0px;
+    font-family: 'NotoSans Medium', 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', '돋움', dotum, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 26px;
+}
+
+.area__doc__body p pre {
+    margin-top: 14px;
+}
+
+.area__doc__body pre {
+    overflow-x: auto;
+    margin-top: 14px !important;
+    font-family: 'RobotoMono Regular', 'NotoSans Light', monospace, 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', '돋움', dotum, sans-serif;
+    color: white;
+    font-size: 15px;
+    line-height: 26px;
+}
+
+.area__doc__body tbody td {
     color : #444;
 }
 
@@ -116,4 +116,72 @@ tbody td {
 
 .__json-boolean__ {
     color : #569cd6;
+}
+
+.nav-sm{
+    display: block;
+    margin: 0 calc(20px * -1);
+    padding: 8px 20px;
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+    opacity: 0.5;
+}
+
+a.nav-sm:hover{
+    color: black;
+    background-color: #ebedf4;
+    opacity: 1;
+}
+
+.nav-sm-active {
+    font-weight: bold;
+    background-color: #ebedf4;
+    opacity: 1;
+}
+
+.nav-lg{
+    display: block;
+    margin: 0 calc(20px * -1);
+    padding: 8px 20px;
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+a.nav-lg:hover{
+    color: black;
+    font-weight: bold;
+}
+.nav-lg-active {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.group__subject {
+    display: table;
+    width: 100%;
+    height: 200px;
+    background-color: #03166c;
+    margin-top: 60px;
+}
+.area__subject {
+    display: table-cell;
+    position: relative;
+    z-index: 1;
+    padding-left: 82px;
+    vertical-align: middle;
+}
+.area__subject .tit_subject {
+    padding-top: 6px;
+    font-weight: normal;
+    font-size: 36px;
+    line-height: 54px;
+    color: #fff;
+    font-family: 'NotoSans Medium', 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', '돋움', dotum, sans-serif;
+    letter-spacing: -0.2px;
+}
+
+.area__doc {
+    padding-top: 1px;
+    margin: auto 82px;
 }

@@ -14,6 +14,9 @@ import com.biz.fm.domain.entity.Application;
 @Mapper
 public interface ApplicationRepository {
 	
+	@Select("SELECT * FROM application WHERE member_id = #{memberId}")
+	public List<Application> findByIdList(String memberId);
+	
 	@Select("SELECT * FROM application WHERE id = #{id}")
 	public Application findById(String id);
 

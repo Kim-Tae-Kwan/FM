@@ -1,14 +1,27 @@
-// import Container from 'react-bootstrap/Container';
 import "../css/Footer.css";
 
 function Footer() {
   return (
-    // <Container className="footer">
-
-    <footer className="footer" style={{ width: "100%" }}>
-      <p>저작권/전화번호~</p>
+    <footer className="footer">
+      <div className="footer_inner">
+        <div className="logo_foot">
+          <img src="./img/color-logo.png" alt="bizplay" />
+        </div>
+        <div className="footer_info">
+          <p>
+            상호 : 비즈플레이㈜&nbsp;&nbsp;
+            대표이사 : 김홍기
+          </p>
+          <p>주소 : 서울시 영등포구 영신로 220 KnK디지털타워 19층</p>
+          <p>
+            사업자등록번호 : 107-88-36127
+            <span>통신판매신고번호 : 2015-서울영등포-0113호</span>
+          </p>
+          <p>TEL : 1566-7235</p>
+          <p className="foot_copyright">Copyright(c) <strong>bizplay</strong> All rights reserved.</p>
+        </div>
+      </div>
     </footer>
-    // </Container>
   );
 }
 

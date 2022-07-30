@@ -3,9 +3,9 @@ import { Container, Form, Row, Col, InputGroup, Button } from 'react-bootstrap'
 import 'bootstrap/dist/css/bootstrap.css';
 import useDaumPostcodePopup from 'react-daum-postcode/lib/useDaumPostcodePopup';
 import DatePickerForm from '../template/DatePickerForm';
-import axios from "axios";
 import { registcreateContext } from '../template/SearchBar';
 import Timer from '../template/Timer'
+import { instance } from '../template/AxiosConfig/AxiosInterceptor';
 function RegisterFormDesign() {
 
     const registmodalInfo = useContext(registcreateContext)
@@ -80,36 +80,57 @@ function RegisterFormDesign() {
         // console.log('8',e.target.form[9].value)
         // console.log('9',e.target.form[10].value)
         e.preventDefault();
-        if (registstate.pwchkstate && registstate.emailchkstate
-            && e.target.form[4].value
-            && e.target.form[5].value
-            && e.target.form[9].value && e.target.form[10].value) {
-            axios({
-                method: 'post',
-                url: 'http://192.168.240.250:8080/api/v1/sign/signup',
-                data: {
-                    address: {
-                        ...address,
-                        detail: e.target.form[9].value,
-                    },
-                    email: e.target.form[1].value,
-                    password: e.target.form[2].value,
-                    name: e.target.form[4].value,
-                    phoneNumber: '010' + e.target.form[5].value,
-                    birth: e.target.form[10].value
+        if (e.target.form[1].value) {
+            if (e.target.form[2].value) {
+                if (e.target.form[4].value) {
+                    if (e.target.form[5].value) {
+                        if (e.target.form[6].value) {
+                            if (registstate.pwchkstate
+                                && registstate.emailchkstate
+                                && e.target.form[5].value.length === 8
+                                ) {
+                                instance({
+                                    method: 'post',
+                                    url: '/sign/signup',
+                                    data: {
+                                        address: {
+                                            ...address,
+                                            detail: e.target.form[9].value,
+                                        },
+                                        email: e.target.form[1].value,
+                                        password: e.target.form[2].value,
+                                        name: e.target.form[4].value,
+                                        phoneNumber: '010' + e.target.form[5].value,
+                                        birth: e.target.form[10].value
+                                    }
+                                }).then(function (res) {
+                                    registmodalInfo.setRegisterShow(false);
+                                    alert('회원가입이 완료 되었습니다.')
+                                }).catch(function(err){
+                                    console.log(err)
+                                })
+                            }else{
+                            }
+                        } else {
+                            alert('주소와 우편번호가 비어있습니다.')
+                        }
+                    } else {
+                        alert('전화번호 란이 비어 있습니다.')
+                    }
+                } else {
+                    alert('이름 란이 비어 있습니다.')
                 }
-            }).then(function (res) {
-                registmodalInfo.setRegisterShow(false);
-                console.log(res)
-                alert('회원가입이 완료 되었습니다.')
-            })
+            } else {
+                alert('비밀번호 란이 비어 있습니다.')
+            }
         } else {
-            alert('값 문제 있음')
+            alert('이메일 란이 비어 있습니다.')
         }
+
     }
 
     //  value validate check logic
-    const [emailchkMessage, setEmailchkmessage] = useState('');
+    const [emailchkMessage, setEmailchkmessage] = useState();
     const [registstate, setRegiststate] = useState({
         emailchkstate: false,
         pwchkstate: false,
@@ -117,13 +138,13 @@ function RegisterFormDesign() {
     const validateEmail = (e) => {
         const regexEmail = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/;
         if (regexEmail.test(e.target.value)) {
-            setEmailchkmessage('올바른 이메일 형식입니다.')
+            setEmailchkmessage(true)
             setRegiststate({
                 ...registstate,
                 emailchkstate: true
             })
         } else {
-            setEmailchkmessage('올바르지 못한 이메일 형식입니다.')
+            setEmailchkmessage(false)
             setRegiststate({
                 ...registstate,
                 emailchkstate: false
@@ -131,39 +152,36 @@ function RegisterFormDesign() {
         }
     }
 
-    const timerStart = () => {
-        
-    }
     const [chkemailinput, setChkemailinput] = useState(false)
     const [activeTimer, setActiveTimer] = useState(false)
     const sendEmail = (e) => {
         e.preventDefault();
-        setChkemailinput(true)
-        setActiveTimer(true)
-        setRegiststate({
-            ...registstate,
-            emailchkstate: false
-        })
-        setTimeout(()=>{
-            setRegiststate({
-                ...registstate,
-                emailchkstate: true
-            })
-        },60000)
-        if(chkemailinput && activeTimer){
+
+        if (chkemailinput && activeTimer) {
             setActiveTimer(false)
-            setTimeout(()=>{setActiveTimer(true)},1)
+            setTimeout(() => { setActiveTimer(true) }, 1)
         }
         if (registstate.emailchkstate) {
-            axios.post('http://192.168.240.250:8080/api/v1/validation/sign-up/send-code', null, {
-                params: {
-                    email: e.target.form[1].value
-                }
-            }
+            instance.post(
+                '/validation/sign-up/send-code', 
+                { email: e.target.form[1].value }
             ).then((res) => {
                 console.log(res)
+                setChkemailinput(true)
+                setActiveTimer(true)
+                setRegiststate({
+                    ...registstate,
+                    emailchkstate: false
+                })
+                setTimeout(() => {
+                    setRegiststate({
+                        ...registstate,
+                        emailchkstate: true
+                    })
+                }, 60000)
             }).catch((err) => {
                 console.log(err)
+                alert('이미 회원가입 되어 있습니다.')
             })
         } else {
             alert('올바른 이메일 형식을 넣어 주십시오')
@@ -174,16 +192,15 @@ function RegisterFormDesign() {
     const chkvalidateEmail = (e) => {
         e.preventDefault();
         if (e.target.form[2].value) {
-            axios.get('http://192.168.240.250:8080/api/v1/validation/sign-up/check-code', {
-                params: {
-                    email: e.target.form[1].value,
-                    code: e.target.form[2].value
-                }
-            }).then((res) => {
+            instance.get(
+                '/validation/sign-up/check-code?email='+e.target.form[1].value+'&code='+e.target.form[2].value
+                ).then((res) => {
                 setChkemailinput(false)
                 setSendvaliemail(true)
                 setActiveTimer(false)
                 alert('인증이 완료되었습니다.')
+            }).catch((err) => {
+                console.log(err)
             })
         } else {
             alert('인증번호 값이 비어있습니다.')
@@ -216,7 +233,7 @@ function RegisterFormDesign() {
         }
     }, [validatepw.pw, validatepw.pwchk])
 
-    
+
 
     return (
         <Container>
@@ -232,14 +249,18 @@ function RegisterFormDesign() {
                         disabled={!registstate.emailchkstate}>
                         인증
                     </Button>
-                    <span style={{ fontSize: '10pt', color: 'red', marginLeft: '10px' }}>{emailchkMessage}</span>
+                    {emailchkMessage ?
+                        <span style={{ fontSize: '10pt', color: 'green', marginLeft: '10px' }}>올바른 이메일 형식입니다.</span>
+                        : <span style={{ fontSize: '10pt', color: 'red', marginLeft: '10px' }}>이메일 형식을 확인해 주세요</span>
+
+                    }
                     <Form.Control
                         type="email"
                         placeholder="이메일"
                         onChange={validateEmail} />
                     {chkemailinput && <Form.Control type='text' placeholder='인증번호 입력'></Form.Control>}
                     {chkemailinput && <Button onClick={chkvalidateEmail}>확인</Button>}
-                    {activeTimer && <Timer active={activeTimer}/>}
+                    {activeTimer && <Timer active={activeTimer} />}
                     {/* {!chkemailinput && <div style={{fontSize:'10pt',color:'green'}}>인증이 완료 되었습니다.</div>} */}
 
                 </Form.Group>
@@ -283,7 +304,7 @@ function RegisterFormDesign() {
                             defaultValue={address.postalCode}
                             readOnly={true}
                         />
-                        <Button onClick={handleClick} style={{ zIndex: '0' }} variant="primary">우편번호 검색</Button>
+                        <Button onClick={handleClick} style={{ zIndex: '0', backgroundColor:'#4187f5'}} variant="primary">우편번호 검색</Button>
                     </InputGroup>
                     <Form.Control
                         className='mb-3'
@@ -315,7 +336,7 @@ function RegisterFormDesign() {
                     가입하기
                 </Button>
             </Form>
-        </Container>
+        </Container >
     );
 }
 

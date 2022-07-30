@@ -9,6 +9,10 @@ const DelMenuModals = ({ show, setShow, data, menuList, setMenuList }) => {
         axios({
             method: "delete",
             url: `http://192.168.240.250:8080/api/v1/menu/` + data.id,
+            headers: {
+                Authorization: 'Bearer '+localStorage.getItem("accessToken")
+
+            },
         }).then(function (res) {
             setShow(false);
             setMenuList(

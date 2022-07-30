@@ -1,8 +1,8 @@
 /* Mypage */
 .Mypage--Container{
-    height: 100%;
+    height: auto;
     padding: 4%;
-    margin-top: -30px;
+    margin-top: 49px;
 }
 /* 카드 디자인 */
 .card {
@@ -42,32 +42,15 @@ hr{
     height: 450px;
 }
 
-/* .btn.btnEditUserInfo{
-    width: 60px;
-    height: 40px;
-    background-color: rgba(250, 250, 250, 0.9);
-    color: rgba(10, 10, 10, 0.7);
-    border-radius: 30%;
-    border: 0.3px solid rgba(10, 10, 10, 0.3);
-} */
-
-/* .userinfozone--usertitle__btnAddFren{
-    width: 90px;
-    height: 40px;
-    background-color: rgba(250, 250, 250, 0.9);
-    color: rgba(10, 10, 10, 0.7);
-    border-radius: 30%;
-    border: 0.3px solid rgba(10, 10, 10, 0.3);
-    
-} */
-
 /* 가맹점리스트 리스트그룹 디자인 */
 .fransimpledatazone--franlistzone>.list-group{
     padding-left: 10px;
     padding-right: 10px;
+    height: 260px;
+    overflow-y: scroll;
     /* 스크롤 없애기 */
     -ms-overflow-style:none; /* IE and Edge */
-    scrollbar-width:none /* Firefox */
+    scrollbar-width:none; /* Firefox */
 }
 
 /* 스크롤 없애기 */
@@ -108,6 +91,17 @@ hr{
         width: 60px;
     }
   }
+  @media (min-width: 1199px) {
+    .delFranbtn{
+        width: 60px;
+    }
+    .emailLabel {
+        width: 60px;
+    }
+    .phonNumLabel{
+        width: 60px;
+    }
+  }
 
 @media (max-width: 991px) {
     .delFranbtn{
@@ -118,13 +112,31 @@ hr{
     .emailLabel {
         width: 60px;
     }
+    .fullAddress{
+        overflow: hidden;
+    }
     .phonNumLabel{
         width: 60px;
     }
   }
   @media (max-width: 768px) {
     .emailLabel {
-        width: 30px;
+        width: 60px;
+    }
+    .fullAddress{
+        overflow: hidden;
+    }
+    .phonNumLabel{
+        width: 60px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .emailLabel {
+        width: 60px;
+    }
+    .fullAddress{
+        overflow: hidden;
     }
     .phonNumLabel{
         width: 60px;

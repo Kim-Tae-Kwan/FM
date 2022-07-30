@@ -50,6 +50,17 @@
     color: darkgray;
 }
 
+.dropdown-menu.header-dropdown{
+    margin-left: -10px;
+    min-width: 100px;
+    padding: 0px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+}
+.dropdown-menu.header-dropdown>li>a{
+    border-radius: 3px;
+}
+
 
 
 /* header fonts */
@@ -82,10 +93,25 @@
         z-index: 1;
     }
     #Header--Nav__BusinessList {
-        color: black;
-        background-color: rgb(220, 220, 220);
+        color:rgba(20, 20, 20, 0.8);
+        background-color: rgba(175, 213, 250, 0.9);
+        border: 0.5px solid rgb(155, 183, 250);
+        border-radius: 15px;
+        width: 120px;
+        height: 40px;
+        line-height: 40px;
+        font-size: 13pt;
+        margin-top: 3px;
     }
+    #Header--Nav__BusinessList:hover{
+        background-color: rgb(155, 183, 250);
+    }
+    .navbar-toggler:focus{
+        box-shadow:  0 0 0 .10rem;
+    }
+
     .element.style {
         background-color: white;
     }
+    
   }

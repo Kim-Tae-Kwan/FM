@@ -200,6 +200,8 @@ public class SignService {
 
 		// AccessToken이 만료되지 않았는데, 재발급 받을 시 잘못된 접근으로 인식한다.
 		if(jwtTokenProvider.validateToken(request, userToken.getAccessToken())) {
+			Member member = memberRepository.findById(userToken.getMemberId());
+			this.signOut(member.getEmail());
 			throw new LogoutByBadToken();
 		}
 		
@@ -274,31 +276,25 @@ public class SignService {
 			result.put("refreshToken", null);
 
 		}
-
 		return result;
 	}
 
 	// 중복 확인
 	public boolean isDuplicate(String email) {
 		Member member = memberRepository.findByEmail(email);
-		if (member == null)
-			return false;
-		else
-			return true;
+		if (member == null) return false;
+		else return true;
 	}
 
 	// 패스워드 확인
 	public boolean isPassword(SignIn signInInfo) {
 		Member beforeMember = memberRepository.findByEmail(signInInfo.getEmail());
-		if (beforeMember == null)
-			throw new InvalidEmailException();
+		if (beforeMember == null) throw new InvalidEmailException();
 
 		boolean checkPassword = passwordEncoder.matches(beforeMember.getPassword(), signInInfo.getPassword());
 
-		if (checkPassword)
-			return true;
-		else
-			return false;
+		if (checkPassword) return true;
+		else return false;
 	}
 
 }

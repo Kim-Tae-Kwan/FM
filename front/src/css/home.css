@@ -95,7 +95,7 @@
 /* 마커디자인 */
 .naverApiMap-mappingMarker{
     background-color: white;
-    border: 0.8px solid rgba(10, 10, 10, 0.8);
+    border: 0.5px solid rgba(10, 10, 10, 0.6);
     border-radius: 23px;
     width: 120px;
     height: 40px;
@@ -142,4 +142,48 @@
     padding: 0px;
     margin-top: -5px;
     color:rgba(10, 10, 10, 0.6);
+}
+
+/* 클러스터 안 마커 디자인 */
+.clusterList{
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+}
+.clusterList>li{
+    height: 40px;
+    padding: 0px;
+    margin:0px
+}
+.clusterList>li>.naverApiMap-mappingMarker{
+    background-color: white;
+    border-top: 0.5px solid rgba(230, 230, 230, 0.8);
+    border-left: 0.5px solid rgba(230, 230, 230, 0.8);
+    border-right: 0.5px solid rgba(230, 230, 230, 0.8);
+    border-bottom: 0px solid black;
+    border-radius: 0px;
+    width: 120px;
+    height: 40px;
+}
+.clusterList>li>:last-child{
+    border-bottom: 0.5px solid rgba(230, 230, 230, 0.8);
+}
+
+.infowindowzone{
+    width: 120px;
+    max-height: 115px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+.infowindowzone::-webkit-scrollbar{
+    width: 4px;
+    border-radius: 10%;
+}
+.infowindowzone::-webkit-scrollbar-thumb{
+    background: #217af4; /* 스크롤바의 색상 */
+    border-radius: 10px;
+}
+.infowindowzone::-webkit-scrollbar-track {
+    background: rgba(33, 122, 244, .1);  /*스크롤바 뒷 배경 색상*/
+
 }

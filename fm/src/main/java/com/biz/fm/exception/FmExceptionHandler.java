@@ -14,14 +14,15 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.UnsatisfiedServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.biz.fm.exception.custom.AppByBadToken;
+import com.biz.fm.exception.custom.ApplicationNameDuplicationException;
 import com.biz.fm.exception.custom.DeleteFailException;
 import com.biz.fm.exception.custom.EmailDuplicationException;
-import com.biz.fm.exception.custom.ExpiredJwtException;
 import com.biz.fm.exception.custom.FileUploadFailException;
-import com.biz.fm.exception.custom.ForbiddenException;
 import com.biz.fm.exception.custom.InsertFailException;
 import com.biz.fm.exception.custom.InvalidEmailException;
 import com.biz.fm.exception.custom.InvalidPasswordException;
@@ -29,10 +30,7 @@ import com.biz.fm.exception.custom.IssudToken;
 import com.biz.fm.exception.custom.LogoutByBadToken;
 import com.biz.fm.exception.custom.LogoutByStateLogin;
 import com.biz.fm.exception.custom.ReLogin;
-import com.biz.fm.exception.custom.ReissudToken;
-import com.biz.fm.exception.custom.UnAuthorizationException;
 import com.biz.fm.exception.custom.UpdateFailException;
-import com.biz.fm.exception.custom.UsernameOrPasswordNotFoundException;
 
 @RestControllerAdvice
 public class FmExceptionHandler {
@@ -81,26 +79,6 @@ public class FmExceptionHandler {
 		return getResponseEntity(ErrorCode.DELETE_FAIL, ex.getMessage());
 	}
 	
-	@ExceptionHandler(value = UsernameOrPasswordNotFoundException.class)
-	public ResponseEntity<?> usernameOrPasswordNotFoundException(UsernameOrPasswordNotFoundException ex){
-		return getResponseEntity(ErrorCode.USERNAME_OR_PASSWORD_NOT_FOUND_EXCEPTION, ex.getMessage());
-	}
-	
-	@ExceptionHandler(value = ForbiddenException.class)
-	public ResponseEntity<?> forbiddenException(ForbiddenException ex){
-		return getResponseEntity(ErrorCode.FORBIDDEN_EXCEPTION, ex.getMessage());
-	}
-	
-	@ExceptionHandler(value = UnAuthorizationException.class)
-	public ResponseEntity<?> unAuthorizationException(UnAuthorizationException ex){
-		return getResponseEntity(ErrorCode.UNAUTHORIZED_EXCEPTION, ex.getMessage());
-	}
-	
-	@ExceptionHandler(value = ExpiredJwtException.class)
-	public ResponseEntity<?> expiredJwtException(ExpiredJwtException ex){
-		return getResponseEntity(ErrorCode.EXPIRED_JWT_EXCEPTION, ex.getMessage());
-	}
-	
 	@ExceptionHandler(value = ReLogin.class)
 	public ResponseEntity<?> reLogin(ReLogin ex){
 		return getResponseEntity(ErrorCode.RELOGIN, ex.getMessage());
@@ -142,6 +120,11 @@ public class FmExceptionHandler {
 		return getResponseEntity(ErrorCode.ARGUMENT_INVALID, ex.getMostSpecificCause().getMessage());
 	}
 	
+	@ExceptionHandler(UnsatisfiedServletRequestParameterException.class)
+	protected ResponseEntity<?> unsatisfiedServletRequestParameterException(UnsatisfiedServletRequestParameterException ex) {
+		return getResponseEntity(ErrorCode.ARGUMENT_INVALID, ex.getMessage());
+	}
+	
 	@ExceptionHandler(SQLException.class)
 	protected ResponseEntity<?> SQLException(SQLException ex) {
 		return getResponseEntity(ErrorCode.MYSQL_QUERY_FAIL, ex.getMessage());
@@ -153,13 +136,18 @@ public class FmExceptionHandler {
 	}
 	
 	@ExceptionHandler(IssudToken.class)
-	protected ResponseEntity<?> issudToken(IssudToken ex) {
+	protected ResponseEntity<?> reissudToken(IssudToken ex) {
 		return getResponseEntity(ErrorCode.ISSUED_TOKEN, ex.getMessage());
 	}
 	
-	@ExceptionHandler(ReissudToken.class)
-	protected ResponseEntity<?> reissudToken(ReissudToken ex) {
-		return getResponseEntity(ErrorCode.REISSUED_TOKEN, ex.getMessage());
+	@ExceptionHandler(ApplicationNameDuplicationException.class)
+	protected ResponseEntity<?> applicationNameDuplicationException(ApplicationNameDuplicationException ex) {
+		return getResponseEntity(ErrorCode.APPLICATRION_NAME_DUPLICATION, ex.getMessage());
+	}
+	
+	@ExceptionHandler(AppByBadToken.class)
+	protected ResponseEntity<?> appByBadToken(AppByBadToken ex) {
+		return getResponseEntity(ErrorCode.APP_BY_BAD_TOKEN, ex.getMessage());
 	}
 	
 	private ResponseEntity<?> getResponseEntity(ErrorCode errorCode, Object detailMessage){
